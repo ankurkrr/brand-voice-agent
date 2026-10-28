@@ -1,0 +1,149 @@
+<!-- ENHANCEMENT PATCH FOR execution.html -->
+<!-- This file contains code snippets to add to your existing execution.html -->
+
+<!--
+====================================================================
+STEP 1: Add Persona Selector Section
+REPLACE the "Brand Voice Profile Section" (starting around line 328) with:
+====================================================================
+-->
+
+<!-- Brand Voice Profile Section -->
+<div style="margin-bottom:2rem; padding-bottom:2rem; border-bottom:1px solid var(--border-color);">
+    <h3 style="color:#aaa; font-size:1rem; margin-bottom:1rem;">1. Brand Voice Profile (Select Persona)</h3>
+
+    <!-- NEW: Persona Selector -->
+    <div class="input-group">
+        <label>Select Persona *</label>
+        <select id="persona-selector" onchange="loadPersona()"
+            style="padding:0.875rem; background:#2d2d2d; border:1px solid var(--border-color); border-radius:4px; color:#fff; width:100%;">
+            <option value="">-- Select a Persona --</option>
+        </select>
+        <div class="helper-text">Choose a persona to auto-fill brand voice rules (or manually enter below)</div>
+    </div>
+
+    <!-- NEW: Resolved Persona Preview -->
+    <div id="resolved-preview"
+        style="display: none; background:#252525; padding:1rem; border-radius:6px; margin-top:1rem; border:1px solid var(--primary-color);">
+        <h4 style="color:var(--primary-color); font-size:0.9rem; margin-bottom:0.5rem;">✅ Resolved Persona Preview</h4>
+        <div style="font-size:0.85rem; color:#aaa;">
+            <div id="preview-stats"></div>
+            <div id="preview-inheritance" style="margin-top:0.5rem;"></div>
+        </div>
+    </div>
+
+    <!-- Existing form fields (auto-populated by persona) -->
+    <div class="input-group" style="margin-top: 1rem;">
+        <label>Brand Voice Profile ID *</label>
+        <input type="text" id="profile_id" placeholder="Auto-filled from persona or enter manually" required>
+        <div class="helper-text">⚠️ Required - Must be from Agent 1. Sample data rejected.</div>
+    </div>
+
+    <!-- Rest of existing fields remain the same -->
+    <div class="input-group">
+        <label>Do's (Writing Rules) *</label>
+        <textarea id="dos" placeholder="One rule per line (at least 1 required)"></textarea>
+        <div class="helper-text">Required - At least one writing rule</div>
+    </div>
+
+    <div class="input-group">
+        <label>Don'ts (Avoid These) *</label>
+        <textarea id="donts" placeholder="One rule per line (at least 1 required)"></textarea>
+        <div class="helper-text">Required - At least one rule to avoid</div>
+    </div>
+
+    <div class="input-group">
+        <label>Forbidden Phrases (Optional)</label>
+        <input type="text" id="forbidden_phrases" placeholder="Comma-separated (e.g., leverage, synergy)">
+    </div>
+
+    <div class="input-group">
+        <label>Preferred Vocabulary (Optional)</label>
+        <input type="text" id="preferred_vocab" placeholder="Comma-separated (e.g., use, empower)">
+    </div>
+
+    <button class="example-btn" onclick="loadFromAgent1()">🔗 Load from Agent-1 Profile</button>
+</div>
+
+
+<!--
+====================================================================
+STEP 2: Add JavaScript for Persona Loading
+Add this code AFTER the existing JavaScript (before </script> tag):
+====================================================================
+-->
+<script>
+    let personas = [];
+
+    // Load personas on page load
+    async function loadPersonasList() {
+        const brandId = new URLSearchParams(window.location.search).get('brand_id') || 'default-brand';
+        try {
+            const res = await fetch(`/api/personas/brand/${brandId}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            personas = data.personas || [];
+
+            const selector = document.getElementById('persona-selector');
+            selector.innerHTML = '<option value="">-- Select a Persona --</option>' +
+                personas.map(p => `<option value="${p.persona_id}">${p.persona_name}</option>`).join('');
+        } catch (err) {
+            console.error('Failed to load personas', err);
+        }
+    }
+
+    async function loadPersona() {
+        const personaId = document.getElementById('persona-selector').value;
+        if (!personaId) {
+            document.getElementById('resolved-preview').style.display = 'none';
+            return;
+        }
+
+        try {
+            // Fetch resolved persona (with inheritance)
+            const res = await fetch(`/api/personas/${personaId}/resolve`);
+            if (!res.ok) throw new Error('Failed to load persona');
+            const resolved = await res.json();
+
+            // Auto-fill form
+            document.getElementById('profile_id').value = resolved.persona_id;
+            document.getElementById('dos').value = resolved.explicit_rules.dos.join('\n');
+            document.getElementById('donts').value = resolved.explicit_rules.donts.join('\n');
+            document.getElementById('forbidden_phrases').value = resolved.explicit_rules.forbidden_phrases.join(', ');
+            document.getElementById('preferred_vocab').value = (resolved.explicit_rules.preferred_vocabulary || []).join(', ');
+
+            // Show resolved preview
+            document.getElementById('preview-stats').innerHTML = `
+            Total Forbidden Phrases: <strong style="color:var(--primary-color);">${resolved.explicit_rules.forbidden_phrases.length}</strong><br>
+            DOs: <strong style="color:var(--primary-color);">${resolved.explicit_rules.dos.length}</strong> | 
+            DON'Ts: <strong style="color:var(--primary-color);">${resolved.explicit_rules.donts.length}</strong>
+        `;
+
+            if (resolved.inheritance_chain && resolved.inheritance_chain.length > 1) {
+                document.getElementById('preview-inheritance').innerHTML = `
+                <span style="color:var(--secondary-color);">📊 Inherited from ${resolved.inheritance_chain.length - 1} parent persona(s)</span>
+            `;
+            } else {
+                document.getElementById('preview-inheritance').innerHTML = '';
+            }
+
+            document.getElementById('resolved-preview').style.display = 'block';
+
+        } catch (err) {
+            alert('Error loading persona: ' + err.message);
+        }
+    }
+
+    // Load personas when page loads
+    window.addEventListener('DOMContentLoaded', loadPersonasList);
+</script>
+
+
+<!--
+====================================================================
+STEP 3: Add Navigation Link to Personas Page
+Add this in the header navigation section (around line 295):
+====================================================================
+-->
+<span style="color:#333; margin:0 0.5rem">|</span>
+<a href="/personas" class="nav-link">📊 Manage Personas</a>

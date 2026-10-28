@@ -1,0 +1,59 @@
+{
+  "name": "voice_model",
+  "nodes": [
+    {
+      "id": "load",
+      "type": "function",
+      "ref": "services.ingest.loaders.load_pdf_or_url", 
+      "retry": 2
+    },
+    {
+      "id": "chunk",
+      "type": "function",
+      "ref": "services.ingest.chunker.chunk_documents",
+      "depends_on": ["load"]
+    },
+    {
+      "id": "embed",
+      "type": "function",
+      "ref": "services.ingest.embeddings_chroma.upsert_chunks_to_chroma",
+      "depends_on": ["chunk"]
+    },
+    {
+      "id": "rule_extract",
+      "type": "llm",
+      "ref": "services.voice.rule_extractor.extract_rules_from_text",
+      "depends_on": ["load"],
+      "retry": 1
+    },
+    {
+      "id": "style_analyze",
+      "type": "function",
+      "ref": "services.voice.style_analysis.style_metrics_from_documents",
+      "depends_on": ["load"]
+    },
+    {
+      "id": "examples",
+      "type": "function",
+      "ref": "services.voice.example_selector.select_best_examples",
+      "depends_on": ["embed"]
+    },
+    {
+      "id": "compose",
+      "type": "function",
+      "ref": "services.voice.profile_composer.compose_voice_profile",
+      "depends_on": ["rule_extract","style_analyze","examples","embed"]
+    }
+  ],
+  "edges": [
+    ["load", "chunk"],
+    ["chunk", "embed"],
+    ["load", "rule_extract"],
+    ["load", "style_analyze"],
+    ["embed", "examples"],
+    ["rule_extract", "compose"],
+    ["style_analyze", "compose"],
+    ["examples", "compose"],
+    ["embed", "compose"]
+  ]
+}

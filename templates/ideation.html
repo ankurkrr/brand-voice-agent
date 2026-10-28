@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Agent-2: The Strategist</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #03dac6;
+            --text-color: #e0e0e0;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        .panel {
+            background: var(--surface-color);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            background: #2d2d2d;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #result-area {
+            display: none;
+        }
+
+        .brief-card {
+            background: #252525;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .brief-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .brief-section h3 {
+            color: var(--primary-color);
+            border-bottom: 1px solid #444;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .helper-text {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.2rem;
+        }
+
+        .error-banner {
+            background: rgba(207, 102, 121, 0.1);
+            border: 1px solid #cf6679;
+            color: #cf6679;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Agent-2: Topic Ideation</h1>
+            <div style="display:flex; gap:1rem; align-items:center;">
+                <a href="/" class="nav-link">← Back to Brand Voice (Agent-1)</a>
+                <a href="/execution" class="nav-link">Agent-3 (Executor) →</a>
+            </div>
+        </header>
+
+        <div class="panel">
+            <div id="error-container" class="error-banner"></div>
+
+            <div class="input-group">
+                <label>Brand ID (Locked Profile)</label>
+                <input type="text" id="brand_id" placeholder="Enter Brand UUID (e.g., from Agent-1 output)">
+                <div class="helper-text">You must have an approved Voice Profile first.</div>
+            </div>
+
+            <div class="input-group">
+                <label>Topic</label>
+                <input type="text" id="topic" placeholder="e.g. The future of remote work">
+            </div>
+
+            <div class="input-group" style="display: flex; gap: 1rem;">
+                <div style="flex: 1;">
+                    <label>Market (Optional)</label>
+                    <input type="text" id="market" placeholder="e.g. Enterprise B2B">
+                </div>
+                <div style="flex: 1;">
+                    <label>Region (Optional)</label>
+                    <input type="text" id="region" placeholder="e.g. North America">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Content Goal (Optional)</label>
+                <input type="text" id="content_goal" placeholder="e.g. Lead Generation / Thought Leadership">
+            </div>
+
+            <button id="generate-btn" onclick="submitIdeation()">Generate Content Brief</button>
+        </div>
+
+        <div id="result-area" class="panel">
+            <h2>Content Brief</h2>
+            <div id="brief-content"></div>
+        </div>
+    </div>
+
+    <script>
+        async function submitIdeation() {
+            const btn = document.getElementById('generate-btn');
+            const err = document.getElementById('error-container');
+            const resultArea = document.getElementById('result-area');
+            const contentDiv = document.getElementById('brief-content');
+
+            const brandId = document.getElementById('brand_id').value.trim();
+            const topic = document.getElementById('topic').value.trim();
+            const market = document.getElementById('market').value.trim();
+            const region = document.getElementById('region').value.trim();
+            const goal = document.getElementById('content_goal').value.trim();
+
+            // Reset
+            err.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = "Strategizing...";
+            resultArea.style.display = 'none';
+
+            try {
+                if (!brandId) throw new Error("Brand ID is required.");
+                if (!topic) throw new Error("Topic is required.");
+
+                const res = await fetch('/ideation/ideate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        brand_id: brandId,
+                        topic: topic,
+                        market: market,
+                        region: region,
+                        content_goal: goal
+                    })
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    try {
+                        const json = JSON.parse(text);
+                        throw new Error(json.detail || text);
+                    } catch {
+                        throw new Error(text);
+                    }
+                }
+
+                const data = await res.json();
+                renderBrief(data.content_brief);
+                resultArea.style.display = 'block';
+
+            } catch (e) {
+                err.textContent = e.message;
+                err.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Generate Content Brief";
+            }
+        }
+
+        function renderBrief(brief) {
+            const div = document.getElementById('brief-content');
+
+            // ARD V1 Frozen Contract: 4 fields only
+            let html = `
+            <div class="brief-card">
+                <div class="brief-section">
+                    <h3>Target Audience</h3>
+                    <p>${brief.target_audience || 'Not specified'}</p>
+                </div>
+                
+                <div class="brief-section">
+                    <h3>SEO Keywords</h3>
+                    <div>${(brief.seo_keywords || []).map(k => `<span style="display:inline-block; background:#333; padding:0.2rem 0.6rem; border-radius:12px; font-size:0.85rem; margin-right:0.5rem; margin-bottom:0.5rem;">${k}</span>`).join('')}</div>
+                </div>
+                
+                <div class="brief-section">
+                    <h3>H2 Outline</h3>
+                    <ol>${(brief.h2_outline || []).map(h => `<li>${h}</li>`).join('')}</ol>
+                </div>
+                
+                <div class="brief-section">
+                    <h3>Key Takeaways</h3>
+                    <ul>${(brief.key_takeaways || []).map(t => `<li>${t}</li>`).join('')}</ul>
+                </div>
+                
+                <div class="brief-section">
+                    <h3>Raw JSON (Database Storage)</h3>
+                    <details style="margin-top:0.5rem;">
+                        <summary style="cursor:pointer; color:var(--primary-color); user-select:none;">▶ Show Raw Data</summary>
+                        <pre style="background:#121212; padding:1rem; border-radius:4px; margin-top:0.5rem; overflow-x:auto; font-size:0.75rem; line-height:1.4; color:#ccc; border:1px solid #333;">${JSON.stringify(brief, null, 2)}</pre>
+                    </details>
+                </div>
+            </div>
+        `;
+            div.innerHTML = html;
+        }
+    </script>
+
+</body>
+
+</html>

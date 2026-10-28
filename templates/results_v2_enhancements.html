@@ -1,0 +1,145 @@
+<!-- ENHANCEMENT PATCH FOR results.html -->
+<!-- This file contains code snippets to add to your existing results.html -->
+
+<!--
+====================================================================
+STEP 1: Add Persona Info Section
+Add this section AFTER the header and BEFORE the results area (around line 40):
+====================================================================
+-->
+
+<!-- Persona Used Section -->
+<div
+    style="background:#1e1e1e; padding:1.5rem; border-radius:8px; border:1px solid var(--border-color); margin-bottom:2rem;">
+    <h3 style="color:var(--primary-color); margin-bottom:1rem;">📊 Persona Used for Generation</h3>
+    <div id="persona-info" style="display:grid; grid-template-columns:2fr 1fr; gap:2rem;">
+        <div>
+            <div style="margin-bottom:0.5rem;">
+                <strong id="persona-name" style="color:#fff; font-size:1.1rem;"></strong>
+                <span id="persona-badge"
+                    style="display:inline-block; margin-left:0.5rem; padding:0.25rem 0.75rem; background:#252525; border:1px solid var(--border-color); border-radius:12px; font-size:0.75rem; color:var(--primary-color);"></span>
+            </div>
+            <div id="persona-rules" style="font-size:0.85rem; color:#666; margin-top:0.5rem;"></div>
+        </div>
+        <div id="dimensional-scores"></div>
+    </div>
+</div>
+
+
+<!--
+====================================================================
+STEP 2: Add CSS for Dimensional Scores (inside <style> tag)
+====================================================================
+-->
+<style>
+    .dimensional-score-bar {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .score-label {
+        width: 80px;
+        font-size: 0.8rem;
+        color: #888;
+    }
+
+    .score-track {
+        flex: 1;
+        height: 6px;
+        background: #2d2d2d;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .score-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        transition: width 0.3s;
+    }
+
+    .score-value {
+        width: 40px;
+        text-align: right;
+        font-size: 0.8rem;
+        color: var(--primary-color);
+    }
+</style>
+
+
+<!--
+====================================================================
+STEP 3: Add JavaScript for Loading Persona Info
+Add this code AFTER the existing JavaScript (before </script> tag):
+====================================================================
+-->
+<script>
+    async function loadPersonaInfo() {
+        const personaId = new URLSearchParams(window.location.search).get('persona_id');
+        if (!personaId) {
+            // Hide persona section if no persona_id
+            document.getElementById('persona-info').closest('div').style.display = 'none';
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/personas/${personaId}`);
+            if (!res.ok) throw new Error('Persona not found');
+            const persona = await res.json();
+
+            // Display persona name and badge
+            document.getElementById('persona-name').textContent = persona.persona_name;
+            document.getElementById('persona-badge').textContent =
+                persona.parent_persona_id ? 'Child Persona' : 'Root Persona';
+
+            // Display persona rules
+            document.getElementById('persona-rules').innerHTML = `
+            <strong style="color:#aaa;">Forbidden Phrases:</strong> ${persona.explicit_rules.forbidden_phrases.length} | 
+            <strong style="color:#aaa;">DOs:</strong> ${persona.explicit_rules.dos.length} | 
+            <strong style="color:#aaa;">DON'Ts:</strong> ${persona.explicit_rules.donts.length}
+        `;
+
+            // Render dimensional scores if available
+            if (persona.dimensional_scores) {
+                renderDimensionalScores(persona.dimensional_scores);
+            } else {
+                document.getElementById('dimensional-scores').innerHTML = '<div style="color:#666; font-size:0.85rem;">No dimensional scores available</div>';
+            }
+
+        } catch (err) {
+            console.error('Failed to load persona info', err);
+            document.getElementById('persona-info').closest('div').style.display = 'none';
+        }
+    }
+
+    function renderDimensionalScores(scores) {
+        const dimensions = ['Humor', 'Empathy', 'Authority', 'Formality', 'Enthusiasm'];
+        const container = document.getElementById('dimensional-scores');
+
+        container.innerHTML = dimensions.map(dim => `
+        <div class="dimensional-score-bar">
+            <div class="score-label">${dim}</div>
+            <div class="score-track">
+                <div class="score-fill" style="width: ${(scores[dim] || 0) * 100}%"></div>
+            </div>
+            <div class="score-value">${((scores[dim] || 0) * 100).toFixed(0)}%</div>
+        </div>
+    `).join('');
+    }
+
+    // Load persona info when page loads
+    window.addEventListener('DOMContentLoaded', loadPersonaInfo);
+</script>
+
+
+<!--
+====================================================================
+STEP 4: Update Execution Flow to Include persona_id
+In the execution.html file, update the redirect to results to include persona_id:
+====================================================================
+-->
+<script>
+    // In execution.html, after successful generation, redirect with persona_id:
+    const personaId = document.getElementById('persona-selector').value;
+    window.location.href = `/results?brand_id=${data.brand_id}&persona_id=${personaId}&execution_id=${data.execution_id}`;
+</script>

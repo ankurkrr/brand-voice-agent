@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Meta Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
+        }
+
+        .hero-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.3rem;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .input-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .input-card:hover {
+            transform: translateY(-2px);
+            border-color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            background: #080808;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #03dac6;
+            background: #0a0a0a;
+            box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            background: #080808;
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 6px;
+            color: #666;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #222;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .helper-text {
+            font-size: 0.8rem;
+            color: #444;
+            margin-top: 0.5rem;
+        }
+
+        #error-msg {
+            color: #cf6679;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hero-container">
+        <h1 class="hero-title">Brand Voice & Persona Ingestion</h1>
+        <p class="hero-subtitle">Autonomous Multi-Agent Marketing System</p>
+
+        <div class="input-card">
+
+            <!-- Brand Bible Input -->
+            <div class="form-group">
+                <label class="form-label">1. Brand Bible Source</label>
+                <div class="tabs">
+                    <div class="tab active" onclick="setMode('text')">Raw Text</div>
+                    <div class="tab" onclick="setMode('url')">URL</div>
+                    <div class="tab" onclick="setMode('pdf')">Upload File</div>
+                </div>
+                <div id="input-container">
+                    <textarea id="input_value" rows="3"
+                        placeholder="Paste brand guidelines, manifesto, or sample content..."></textarea>
+                </div>
+            </div>
+
+            <!-- Topic Input -->
+            <div class="form-group">
+                <label class="form-label">2. Content Topic</label>
+                <input type="text" id="content_topic" placeholder="e.g. The Future of Sustainable Tech">
+            </div>
+
+            <!-- Optional Brand ID -->
+            <div class="form-group">
+                <label class="form-label">Brand ID (Optional)</label>
+                <input type="text" id="brand_name" placeholder="Leave empty to auto-generate">
+            </div>
+
+            <button class="btn-submit" id="submit-btn" onclick="submitIngest()">Generate Response &rarr;</button>
+            <div id="error-msg"></div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'text';
+
+        function setMode(mode) {
+            currentMode = mode;
+            // Update UI
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const container = document.getElementById('input-container');
+            if (mode === 'text') {
+                container.innerHTML = `<textarea id="input_value" rows="3" placeholder="Paste brand guidelines..."></textarea>`;
+            } else if (mode === 'url') {
+                container.innerHTML = `<input type="text" id="input_value" placeholder="https://yourbrand.com/about or YouTube URL">`;
+            } else {
+                container.innerHTML = `<input type="file" id="input_file" accept=".pdf,.docx,.mp3,.wav,.mp4,.mov,.m4a">`;
+            }
+        }
+
+        async function submitIngest() {
+            const topic = document.getElementById('content_topic').value;
+            let brandName = document.getElementById('brand_name').value;
+            const btn = document.getElementById('submit-btn');
+            const err = document.getElementById('error-msg');
+
+            if (!topic) {
+                err.innerText = "Please enter a topic.";
+                err.style.display = 'block';
+                return;
+            }
+
+            err.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+
+            try {
+                // Generate brand_id upfront OR use existing
+                // User requirement: Allow reuse of brand_id
+                let brand_id = brandName.trim();
+                const isNewBrand = !brand_id;
+
+                if (isNewBrand) {
+                    brand_id = crypto.randomUUID();
+                    brandName = `brand_${brand_id.substring(0, 8)}`;
+                } else {
+                    // Reuse existing ID
+                    console.log(`[INDEX] Reusing existing brand_id: ${brand_id}`);
+                }
+
+                console.log(`[INDEX] Final brand_id: ${brand_id}`);
+
+                let res;
+                let data;
+
+                if (isNewBrand) {
+                    // --- CASE 1: NEW BRAND (Content Required) ---
+                    if (currentMode === 'pdf') {
+                        const fileInput = document.getElementById('input_file');
+                        if (!fileInput.files[0]) throw new Error("Select a file for new brand.");
+
+                        const formData = new FormData();
+                        formData.append("brand_id", brand_id);
+                        formData.append("brand_name", brandName);
+                        formData.append("skip_generation", "true");
+                        formData.append("file", fileInput.files[0]);
+                        res = await fetch('/ingest', { method: 'POST', body: formData });
+                    } else {
+                        const val = document.getElementById('input_value').value;
+                        if (!val) throw new Error("Enter content.");
+
+                        const payload = {
+                            input_type: currentMode,
+                            input_value: val,
+                            brand_id: brand_id,
+                            brand_name: brandName,
+                            skip_generation: true
+                        };
+                        res = await fetch('/ingest', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                    }
+                } else {
+                    // --- CASE 2: REUSING BRAND (Content Optional) ---
+                    const val = document.getElementById('input_value').value;
+                    const fileInput = document.getElementById('input_file');
+                    const hasFile = fileInput && fileInput.files.length > 0;
+
+                    if (val || hasFile) {
+                        // Content Provided -> UPDATE
+                        if (currentMode === 'pdf' && hasFile) {
+                            const formData = new FormData();
+                            formData.append("brand_id", brand_id);
+                            formData.append("brand_name", brandName);
+                            formData.append("skip_generation", "true");
+                            formData.append("file", fileInput.files[0]);
+                            res = await fetch('/ingest', { method: 'POST', body: formData });
+                        } else {
+                            if (!val) throw new Error("Enter content to update.");
+                            const payload = {
+                                input_type: currentMode,
+                                input_value: val,
+                                brand_id: brand_id,
+                                brand_name: brandName,
+                                skip_generation: true
+                            };
+                            res = await fetch('/ingest', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                        }
+                    } else {
+                        // NO CONTENT -> SKIP INGESTION
+                        console.log("[INDEX] Skipping Ingest (Existing Brand, No Content)");
+
+                        // Clear session data to force DB fetch in results
+                        sessionStorage.removeItem('agent1_data');
+                        sessionStorage.setItem('topic', topic);
+
+                        window.location.href = `/results?brand_id=${brand_id}&topic=${encodeURIComponent(topic)}`;
+                        return; // EXIT EARLY
+                    }
+                }
+
+                // Handle Ingestion Response (Cases 1 & 2)
+                if (!res.ok) throw new Error(await res.text());
+
+                data = await res.json();
+
+                // SAVE DATA TO SESSION STORAGE
+                try {
+                    sessionStorage.setItem('agent1_data', JSON.stringify(data));
+                    sessionStorage.setItem('topic', topic);
+                    console.log("Saved Agent 1 data to session storage");
+                } catch (e) {
+                    console.error("Failed to save to session storage", e);
+                }
+
+                // Redirect with session info — use BACKEND brand_id as source of truth
+                const actualBrandId = data.brand_id || brand_id;
+                window.location.href = `/results?brand_id=${actualBrandId}&topic=${encodeURIComponent(topic)}&session_id=${data.session_id || ''}`;
+
+            } catch (e) {
+                err.innerText = "Error: " + e.message;
+                err.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = "Generate Response ->";
+            }
+        }
+    </script>
+</body>
+
+</html>

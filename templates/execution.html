@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent-3: The Executor</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #03dac6;
+            --secondary-color: #bb86fc;
+            --text-color: #e0e0e0;
+            --border-color: #333;
+            --error-color: #cf6679;
+            --success-color: #4caf50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.875rem;
+        }
+
+        .nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: var(--surface-color);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #aaa;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.875rem;
+            background: #2d2d2d;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .helper-text {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .error-banner {
+            background: rgba(207, 102, 121, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .platform-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 0.875rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #888;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .platform-content {
+            display: none;
+        }
+
+        .platform-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-card {
+            background: #252525;
+            padding: 1.5rem;
+            border-radius: 6px;
+            border: 1px solid #333;
+        }
+
+        .content-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+
+        .content-text {
+            background: #1a1a1a;
+            padding: 1.5rem;
+            border-radius: 4px;
+            border: 1px solid #2d2d2d;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 0.9375rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            background: var(--secondary-color);
+            color: #fff;
+            padding: 0.625rem 1.25rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            width: auto;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .example-btn {
+            background: #2d2d2d;
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            width: auto;
+        }
+
+        .violation-badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            background: rgba(207, 102, 121, 0.2);
+            border: 1px solid var(--error-color);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--error-color);
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tweet-card {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #2d2d2d;
+            margin-bottom: 0.75rem;
+        }
+
+        .tweet-number {
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Agent-3: The Executor</h1>
+            <div>
+                <a href="/" class="nav-link">← Agent-1 (Voice)</a>
+                <span style="color:#333; margin:0 0.5rem">|</span>
+                <a href="/ideation" class="nav-link">Agent-2 (Strategy) →</a>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <!-- Input Panel -->
+            <div class="panel">
+                <h2 style="margin-bottom:1.5rem; font-size:1.25rem;">Execution Inputs</h2>
+
+                <div id="error-container" class="error-banner"></div>
+
+                <!-- Quick Mode (Auto-Fetch) -->
+                <div
+                    style="background:#252525; padding:1.5rem; border:1px solid var(--primary-color); border-radius:6px; margin-bottom:2rem;">
+                    <h3 style="color:var(--primary-color); font-size:1rem; margin-bottom:0.5rem;">🚀 Quick Mode:
+                        Auto-Fetch</h3>
+                    <p style="color:#aaa; font-size:0.85rem; margin-bottom:1rem;">
+                        Enter your Brand ID to automatically use the latest Brand Voice (Agent 1) and Content Brief
+                        (Agent 2).
+                    </p>
+
+                    <div class="input-group">
+                        <label>Brand ID *</label>
+                        <input type="text" id="auto_brand_id" placeholder="Enter Brand UUID">
+                    </div>
+
+                    <button id="quick-execute-btn" onclick="executeQuickMode()"
+                        style="background:var(--secondary-color);">✨ Fetch Data & Execute</button>
+                </div>
+
+                <div style="text-align:center; margin-bottom:2rem; color:#666;">--- OR MANUAL INPUT ---</div>
+
+                <!-- Brand Voice Profile Section -->
+                <div style="margin-bottom:2rem; padding-bottom:2rem; border-bottom:1px solid var(--border-color);">
+                    <h3 style="color:#aaa; font-size:1rem; margin-bottom:1rem;">1. Brand Voice Profile (From Agent 1)
+                    </h3>
+
+                    <div class="input-group">
+                        <label>Brand Voice Profile ID *</label>
+                        <input type="text" id="profile_id" placeholder="Enter Profile ID from Agent-1 (required)"
+                            required>
+                        <div class="helper-text">⚠️ Required - Must be from Agent 1. Sample data rejected.</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Do's (Writing Rules) *</label>
+                        <textarea id="dos" placeholder="One rule per line (at least 1 required)"></textarea>
+                        <div class="helper-text">Required - At least one writing rule</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Don'ts (Avoid These) *</label>
+                        <textarea id="donts" placeholder="One rule per line (at least 1 required)"></textarea>
+                        <div class="helper-text">Required - At least one rule to avoid</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Forbidden Phrases (Optional)</label>
+                        <input type="text" id="forbidden_phrases"
+                            placeholder="Comma-separated (e.g., leverage, synergy)">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Preferred Vocabulary (Optional)</label>
+                        <input type="text" id="preferred_vocab" placeholder="Comma-separated (e.g., use, empower)">
+                    </div>
+
+                    <button class="example-btn" onclick="loadFromAgent1()">🔗 Load from Agent-1 Profile</button>
+                </div>
+
+                <!-- Content Brief Section -->
+                <div style="margin-bottom:2rem; padding-bottom:2rem; border-bottom:1px solid var(--border-color);">
+                    <h3 style="color:#aaa; font-size:1rem; margin-bottom:1rem;">2. Content Brief (From Agent 2)</h3>
+
+                    <div class="input-group">
+                        <label>Topic *</label>
+                        <input type="text" id="topic" placeholder="e.g., AI in Marketing" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Target Audience *</label>
+                        <input type="text" id="target_audience" placeholder="e.g., Marketing professionals" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Key Messages (one per line) *</label>
+                        <textarea id="key_messages" placeholder="Message 1&#10;Message 2&#10;Message 3"
+                            required></textarea>
+                        <div class="helper-text">Required - At least one key message</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Call-to-Action *</label>
+                        <input type="text" id="cta" placeholder="e.g., Start your free trial" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Keywords (comma-separated)</label>
+                        <input type="text" id="keywords" placeholder="AI, marketing, automation">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Blog Outline (H2 headings, one per line)</label>
+                        <textarea id="blog_outline"
+                            placeholder="Introduction&#10;Main Point 1&#10;Main Point 2&#10;Conclusion"></textarea>
+                        <div class="helper-text">Required if generating blog content</div>
+                    </div>
+
+                    <button class="example-btn" onclick="fillSampleBrief()">📝 Use Sample Brief</button>
+                </div>
+
+                <!-- Execution Settings -->
+                <div style="margin-bottom:2rem;">
+                    <h3 style="color:#aaa; font-size:1rem; margin-bottom:1rem;">3. Execution Settings</h3>
+
+                    <div class="input-group">
+                        <label>Platforms to Generate *</label>
+                        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem;">
+                            <label style="display:flex; align-items:center; cursor:pointer;">
+                                <input type="checkbox" id="platform_blog" value="blog" checked
+                                    style="margin-right:0.5rem;">
+                                📝 Blog
+                            </label>
+                            <label style="display:flex; align-items:center; cursor:pointer;">
+                                <input type="checkbox" id="platform_linkedin" value="linkedin" checked
+                                    style="margin-right:0.5rem;">
+                                💼 LinkedIn
+                            </label>
+                            <label style="display:flex; align-items:center; cursor:pointer;">
+                                <input type="checkbox" id="platform_twitter" value="twitter" checked
+                                    style="margin-right:0.5rem;">
+                                🐦 Twitter
+                            </label>
+                            <label style="display:flex; align-items:center; cursor:pointer;">
+                                <input type="checkbox" id="platform_email" value="email" checked
+                                    style="margin-right:0.5rem;">
+                                📧 Email
+                            </label>
+                        </div>
+                        <div class="helper-text">Select at least one platform</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Execution Mode</label>
+                        <select id="execution_mode"
+                            style="width:100%; padding:0.875rem; background:#2d2d2d; border:1px solid var(--border-color); border-radius:4px; color:#fff;">
+                            <option value="single">Single Version (default)</option>
+                            <option value="variants">Multiple Variants</option>
+                        </select>
+                        <div class="helper-text">'single' for one version, 'variants' for multiple phrasings</div>
+                    </div>
+                </div>
+
+                <button id="execute-btn" onclick="executeGeneration()">⚡ Execute Content Generation</button>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="panel">
+                <h2 style="margin-bottom:1.5rem; font-size:1.25rem;">Platform-Native Output</h2>
+
+                <div id="output-container" style="color:#666; text-align:center; padding:3rem;">
+                    No content generated yet. Fill in the form and click "Execute" to start.
+                </div>
+
+                <div id="results-area" style="display:none;">
+                    <div class="platform-tabs">
+                        <button class="tab-btn active" onclick="switchTab('blog')">📝 Blog</button>
+                        <button class="tab-btn" onclick="switchTab('linkedin')">💼 LinkedIn</button>
+                        <button class="tab-btn" onclick="switchTab('twitter')">🐦 Twitter</button>
+                        <button class="tab-btn" onclick="switchTab('email')">📧 Email</button>
+                    </div>
+
+                    <div id="blog-content" class="platform-content active"></div>
+                    <div id="linkedin-content" class="platform-content"></div>
+                    <div id="twitter-content" class="platform-content"></div>
+                    <div id="email-content" class="platform-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadFromAgent1() {
+            const profileId = document.getElementById('profile_id').value.trim();
+            if (!profileId) {
+                alert('Please enter a Profile ID first');
+                return;
+            }
+
+            // Fetch brand voice from Agent 1
+            fetch(`/ingest/profiles/brand/${profileId}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Profile not found');
+                    return res.json();
+                })
+                .then(data => {
+                    // Fill in the form
+                    document.getElementById('dos').value = data.profile_data.rules.dos.join('\n');
+                    document.getElementById('donts').value = data.profile_data.rules.donts.join('\n');
+                    document.getElementById('forbidden_phrases').value = (data.profile_data.rules.forbidden_phrases || []).join(', ');
+                    document.getElementById('preferred_vocab').value = (data.profile_data.rules.preferred_vocabulary || []).join(', ');
+                    alert('Brand voice loaded successfully!');
+                })
+                .catch(err => {
+                    alert('Error loading profile: ' + err.message);
+                });
+        }
+
+        function fillSampleBrief() {
+            document.getElementById('profile_id').value = 'REPLACE_WITH_REAL_PROFILE_ID';
+            document.getElementById('dos').value = 'Use active voice\nKeep sentences under 20 words\nBe specific and actionable';
+            document.getElementById('donts').value = 'Use jargon\nWrite in passive voice\nBe vague or generic';
+            document.getElementById('forbidden_phrases').value = 'leverage, synergy, utilize';
+            document.getElementById('preferred_vocab').value = 'use, empower, transform';
+
+            document.getElementById('topic').value = 'AI in Marketing Automation';
+            document.getElementById('target_audience').value = 'Marketing professionals and CMOs';
+            document.getElementById('key_messages').value = 'AI saves 10+ hours per week\nImproves campaign accuracy by 40%\nEasy to implement in existing workflows';
+            document.getElementById('cta').value = 'Start your free trial today';
+            document.getElementById('keywords').value = 'AI marketing, automation, efficiency';
+            document.getElementById('blog_outline').value = 'What is AI Marketing\nBenefits of AI in Marketing\nHow to Get Started\nBest Practices';
+        }
+
+        function switchTab(platform) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.platform-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${platform}-content`).classList.add('active');
+        }
+
+        async function executeGeneration() {
+            const btn = document.getElementById('execute-btn');
+            const err = document.getElementById('error-container');
+            const outputContainer = document.getElementById('output-container');
+            const resultsArea = document.getElementById('results-area');
+
+            // Reset
+            err.style.display = 'none';
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+            try {
+                // Collect Brand Voice Profile
+                const profileId = document.getElementById('profile_id').value.trim();
+                const dosText = document.getElementById('dos').value.trim();
+                const dontsText = document.getElementById('donts').value.trim();
+                const forbiddenPhrasesText = document.getElementById('forbidden_phrases').value.trim();
+                const preferredVocabText = document.getElementById('preferred_vocab').value.trim();
+
+                // Collect Content Brief
+                const topic = document.getElementById('topic').value.trim();
+                const targetAudience = document.getElementById('target_audience').value.trim();
+                const keyMessagesText = document.getElementById('key_messages').value.trim();
+                const cta = document.getElementById('cta').value.trim();
+                const keywordsText = document.getElementById('keywords').value.trim();
+                const outlineText = document.getElementById('blog_outline').value.trim();
+
+                // Collect Platforms
+                const platforms = [];
+                if (document.getElementById('platform_blog').checked) platforms.push('blog');
+                if (document.getElementById('platform_linkedin').checked) platforms.push('linkedin');
+                if (document.getElementById('platform_twitter').checked) platforms.push('twitter');
+                if (document.getElementById('platform_email').checked) platforms.push('email');
+
+                // Get execution mode
+                const executionMode = document.getElementById('execution_mode').value;
+
+                // Validation
+                if (!profileId) throw new Error("Profile ID is required (strict mode)");
+                if (!dosText) throw new Error("At least one 'Do' rule is required");
+                if (!dontsText) throw new Error("At least one 'Don't' rule is required");
+                if (!topic) throw new Error("Topic is required");
+                if (!targetAudience) throw new Error("Target audience is required");
+                if (!keyMessagesText) throw new Error("At least one key message is required");
+                if (!cta) throw new Error("Call-to-action is required");
+                if (platforms.length === 0) throw new Error("Select at least one platform");
+
+                // Parse inputs
+                const dos = dosText.split('\n').map(r => r.trim()).filter(r => r);
+                const donts = dontsText.split('\n').map(r => r.trim()).filter(r => r);
+                const forbiddenPhrases = forbiddenPhrasesText ? forbiddenPhrasesText.split(',').map(p => p.trim()).filter(p => p) : [];
+                const preferredVocab = preferredVocabText ? preferredVocabText.split(',').map(v => v.trim()).filter(v => v) : [];
+                const keyMessages = keyMessagesText.split('\n').map(m => m.trim()).filter(m => m);
+                const keywords = keywordsText ? keywordsText.split(',').map(k => k.trim()).filter(k => k) : [];
+                const blogOutline = outlineText ? outlineText.split('\n').map(h => h.trim()).filter(h => h) : [];
+
+                // Build request payload (STRICT MODE)
+                const payload = {
+                    brand_voice_profile: {
+                        profile_id: profileId,
+                        tone: {
+                            primary: "Professional",
+                            secondary: ["Empowering", "Clear"],
+                            description: "Professional yet approachable communication"
+                        },
+                        dos: dos,
+                        donts: donts,
+                        forbidden_phrases: forbiddenPhrases,
+                        preferred_vocabulary: preferredVocab
+                    },
+                    content_brief: {
+                        topic: topic,
+                        target_audience: targetAudience,
+                        key_messages: keyMessages,
+                        keywords: keywords,
+                        cta: cta,
+                        blog_outline: blogOutline
+                    },
+                    platforms: platforms,
+                    execution_mode: executionMode
+                };
+
+                // Call Agent 3 API
+                const res = await fetch('/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    // Handle strict mode errors
+                    if (errorData.detail && errorData.detail.reason) {
+                        throw new Error(`[${errorData.detail.error}] ${errorData.detail.reason}`);
+                    }
+                    throw new Error(errorData.detail?.message || JSON.stringify(errorData.detail) || 'Generation failed');
+                }
+
+                const data = await res.json();
+
+                // Render results
+                renderResults(data);
+                outputContainer.style.display = 'none';
+                resultsArea.style.display = 'block';
+
+            } catch (e) {
+                err.textContent = e.message;
+                err.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '⚡ Execute Content Generation';
+            }
+        }
+
+        async function executeQuickMode() {
+            const btn = document.getElementById('quick-execute-btn');
+            const err = document.getElementById('error-container');
+            const outputContainer = document.getElementById('output-container');
+            const resultsArea = document.getElementById('results-area');
+            const brandId = document.getElementById('auto_brand_id').value.trim();
+
+            // Reset
+            err.style.display = 'none';
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Fetching & Executing...';
+
+            try {
+                if (!brandId) throw new Error("Brand ID is required for Quick Mode");
+
+                // Collect Platforms (re-use checkboxes or default to all)
+                const platforms = [];
+                if (document.getElementById('platform_blog').checked) platforms.push('blog');
+                if (document.getElementById('platform_linkedin').checked) platforms.push('linkedin');
+                if (document.getElementById('platform_twitter').checked) platforms.push('twitter');
+                if (document.getElementById('platform_email').checked) platforms.push('email');
+
+                if (platforms.length === 0) throw new Error("Select at least one platform");
+
+                // Payload for Quick Mode
+                const payload = {
+                    brand_id: brandId,
+                    platforms: platforms,
+                    execution_mode: document.getElementById('execution_mode').value
+                };
+
+                // Call Agent 3 API
+                const res = await fetch('/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    let msg = errorData.detail?.message || JSON.stringify(errorData.detail) || 'Generation failed';
+                    if (errorData.detail && errorData.detail.reason) {
+                        msg = `[${errorData.detail.error}] ${errorData.detail.reason}`;
+                    }
+                    throw new Error(msg);
+                }
+
+                const data = await res.json();
+                renderResults(data);
+                outputContainer.style.display = 'none';
+                resultsArea.style.display = 'block';
+
+            } catch (e) {
+                err.textContent = e.message;
+                err.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ Fetch Data & Execute';
+            }
+        }
+
+        function renderResults(data) {
+            // ... (rest of renderResults) ...
+            // Blog
+            document.getElementById('blog-content').innerHTML = `
+                <div class="content-card">
+                    <h3>${data.blog.title}</h3>
+                    <div class="content-text">${data.blog.content}</div>
+                    <button class="copy-btn" onclick="copyToClipboard('blog')">📋 Copy Blog Post</button>
+                </div>
+            `;
+
+            // LinkedIn
+            document.getElementById('linkedin-content').innerHTML = `
+                <div class="content-card">
+                    <h3>LinkedIn Post</h3>
+                    <div class="content-text">${data.linkedin.post}</div>
+                    <button class="copy-btn" onclick="copyToClipboard('linkedin')">📋 Copy LinkedIn Post</button>
+                </div>
+            `;
+
+            // Twitter
+            const twitterHtml = data.twitter.thread.map((tweet, i) => `
+                <div class="tweet-card">
+                    <div class="tweet-number">Tweet ${i + 1} / ${data.twitter.thread.length}</div>
+                    <div style="color:#e0e0e0;">${tweet}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('twitter-content').innerHTML = `
+                <div class="content-card">
+                    <h3>Twitter Thread (${data.twitter.thread.length} tweets)</h3>
+                    ${twitterHtml}
+                    <button class="copy-btn" onclick="copyToClipboard('twitter')">📋 Copy Thread</button>
+                </div>
+            `;
+
+            // Email
+            document.getElementById('email-content').innerHTML = `
+                <div class="content-card">
+                    <h3>Email Campaign</h3>
+                    <div style="margin-bottom:1rem;">
+                        <strong style="color:var(--primary-color);">Subject:</strong>
+                        <div class="content-text" style="margin-top:0.5rem;">${data.email.subject}</div>
+                    </div>
+                    <div style="margin-bottom:1rem;">
+                        <strong style="color:var(--primary-color);">Preview Text:</strong>
+                        <div class="content-text" style="margin-top:0.5rem;">${data.email.preview}</div>
+                    </div>
+                    <div style="margin-bottom:1rem;">
+                        <strong style="color:var(--primary-color);">Body:</strong>
+                        <div class="content-text" style="margin-top:0.5rem;">${data.email.body}</div>
+                    </div>
+                    <div>
+                        <strong style="color:var(--primary-color);">CTA Button:</strong>
+                        <div style="margin-top:0.5rem; padding:0.75rem; background:var(--primary-color); color:#000; border-radius:4px; text-align:center; font-weight:bold; display:inline-block;">${data.email.cta}</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('email')">📋 Copy Email</button>
+                </div>
+            `;
+
+            // Store for clipboard
+            window.generatedContent = data;
+        }
+
+        function copyToClipboard(platform) {
+            const data = window.generatedContent;
+            let text = '';
+
+            if (platform === 'blog') {
+                text = `${data.blog.title}\n\n${data.blog.content}`;
+            } else if (platform === 'linkedin') {
+                text = data.linkedin.post;
+            } else if (platform === 'twitter') {
+                text = data.twitter.thread.join('\n\n---\n\n');
+            } else if (platform === 'email') {
+                text = `Subject: ${data.email.subject}\n\nPreview: ${data.email.preview}\n\n${data.email.body}\n\nCTA: ${data.email.cta}`;
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => { btn.textContent = originalText; }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>

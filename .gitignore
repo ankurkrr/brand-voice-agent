@@ -1,0 +1,161 @@
+# ==============================================================================
+# Git Ignore Configuration - Brand Voice Multi-Agent Platform
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Environment & Secrets (NEVER push credentials to git)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.env
+env.json
+secrets.json
+service-account*.json
+*.pem
+*.key
+
+# ------------------------------------------------------------------------------
+# Python Bytecode & Compilation Artifacts
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ------------------------------------------------------------------------------
+# Virtual Environments
+# ------------------------------------------------------------------------------
+.conda/
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ------------------------------------------------------------------------------
+# IDEs, Editors & Tooling
+# ------------------------------------------------------------------------------
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+.config/
+.gemini/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# ------------------------------------------------------------------------------
+# Testing, Coverage & QA
+# ------------------------------------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# ------------------------------------------------------------------------------
+# Databases, Vector Stores & Local Persistence
+# ------------------------------------------------------------------------------
+chroma_data/
+chroma_data_volume/
+local_db/
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# ------------------------------------------------------------------------------
+# Binaries & Large Executables
+# ------------------------------------------------------------------------------
+cloud-sql-proxy
+cloud-sql-proxy.exe
+*.exe
+*.dll
+*.bin
+*.dylib
+
+# ------------------------------------------------------------------------------
+# Logs & Ephemeral Terminal Outputs
+# ------------------------------------------------------------------------------
+logs/*
+!logs/.gitignore
+*.log
+*.log.*
+AGENT2_DEBUG.log
+db_init_v2.log
+debug_granular.log
+debug_log.txt
+debug_output.txt
+diff.txt
+websignals.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ------------------------------------------------------------------------------
+# Development Scratch Scripts, Diagnostic Dumps & One-Off Tooling
+# ------------------------------------------------------------------------------
+codebase_tree.txt
+report_data.md
+debug_*.py
+fix_*.py
+quick_*.py
+apply_005.py
+
+# ------------------------------------------------------------------------------
+# Redundant & Generated Postman Dumps (platform_postman_collection.json is preserved)
+# ------------------------------------------------------------------------------
+collection.json
+collection_postman.json
+postman_collection_generated.json
+
+# ------------------------------------------------------------------------------
+# Temporary Files & OS Specifics
+# ------------------------------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini

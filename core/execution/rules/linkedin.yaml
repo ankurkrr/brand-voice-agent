@@ -1,0 +1,14 @@
+min_words: 50
+max_words: 3000
+ideal_length: 1300
+structure: "Hook -> Value -> CTA"
+formatting: "Short paragraphs, bullet points, emojis sparingly"
+engagement_tactics:
+  - "Question in hook"
+  - "List format"
+  - "Clear CTA"
+tone: "Professional yet conversational, insight-driven"
+banned_words: []
+required_elements:
+  - "Hook"
+  - "Call to Action"

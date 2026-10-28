@@ -1,0 +1,955 @@
+{
+  "info": {
+    "name": "Brand Voice Agent — Platform MCP Integration",
+    "description": "Complete API collection for platform team MCP server integration.\n\nPipeline Flow: Create Brand → Ingest → Ideate → Execute\n\nAll responses include realistic sample data.\n\nBase URL: Set {{baseUrl}} variable to your deployed Cloud Run URL.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://your-agent.run.app",
+      "type": "string"
+    },
+    {
+      "key": "brand_id",
+      "value": "7979249c-f62b-4d42-85fb-48dca9035bbc",
+      "type": "string"
+    },
+    {
+      "key": "profile_id",
+      "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "type": "string"
+    },
+    {
+      "key": "brief_id",
+      "value": "b2c3d4e5-f678-90ab-cdef-123456789012",
+      "type": "string"
+    },
+    {
+      "key": "pipeline_id",
+      "value": "c3d4e5f6-7890-abcd-ef12-345678901234",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Container health check. Always returns 200 OK."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"ok\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Agent 3 Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/execute/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["execute", "health"]
+            },
+            "description": "Health check for Agent 3 (Execution)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"ok\",\n  \"agent\": \"agent3\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Brand Management",
+      "item": [
+        {
+          "name": "Create Brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "name",
+                  "value": "Acme Corp",
+                  "description": "(Required) Brand/Org name.",
+                  "type": "text"
+                },
+                {
+                  "key": "brand_id",
+                  "value": "org_12345",
+                  "description": "(Optional) Pass your org_id here to use it as brand_id. If omitted, a UUID is auto-generated.",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/brands/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "create"]
+            },
+            "description": "Creates a new brand.\n\nPlatform Integration: Pass your org_id as brand_id to use it directly everywhere — no mapping table needed.\nIf brand_id is omitted, a UUID is auto-generated."
+          },
+          "response": [
+            {
+              "name": "200 — Brand Created (with org_id)",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"brand_id\": \"org_12345\",\n  \"name\": \"Acme Corp\",\n  \"created_at\": \"2026-02-19T07:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Brand Resources",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{brand_id}}/resources",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "{{brand_id}}", "resources"]
+            },
+            "description": "Deletes all generated resources (profiles, briefs, content) for a brand.\nDoes NOT delete the brand record itself."
+          },
+          "response": [
+            {
+              "name": "200 — Resources Deleted",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"All brand resources discarded.\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Agent 1 — Ingestion (Voice Profile)",
+      "item": [
+        {
+          "name": "Ingest Text/URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand_name\": \"Acme Corp\",\n  \"input_type\": \"url\",\n  \"input_value\": \"https://acmecorp.com/about\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": ["{{baseUrl}}"],
+              "path": ["ingest"]
+            },
+            "description": "Unified ingestion endpoint. Accepts JSON (text/URL) or multipart/form-data (file).\n\nInput types: 'text' (raw text) or 'url' (website URL to scrape).\n\n⚠️ LATENCY: Takes 10-30 seconds. Set timeout ≥ 60s."
+          },
+          "response": [
+            {
+              "name": "200 — Voice Profile Generated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"status\": \"DRAFT\",\n  \"version\": 1,\n  \"tone\": {\n    \"primary\": \"Professional\",\n    \"secondary\": [\"Analytical\", \"Authoritative\"],\n    \"description\": \"Fact-based and direct communication that prioritizes clarity and precision.\"\n  },\n  \"dos\": [\n    \"Use active voice\",\n    \"Lead with data and evidence\",\n    \"Keep sentences under 20 words\"\n  ],\n  \"donts\": [\n    \"Avoid exclamation marks\",\n    \"Don't use jargon without context\",\n    \"Never start with questions\"\n  ],\n  \"best_match_examples\": [\n    {\n      \"example_id\": \"ex_1\",\n      \"text\": \"Our platform processes 10M transactions daily. Performance metrics show 99.9% uptime.\"\n    },\n    {\n      \"example_id\": \"ex_2\",\n      \"text\": \"Data security follows ISO 27001 standards. All transmissions use AES-256 encryption.\"\n    },\n    {\n      \"example_id\": \"ex_3\",\n      \"text\": \"Integration requires three steps: authentication, configuration, deployment.\"\n    }\n  ],\n  \"raw_json\": {},\n  \"profile_data\": {}\n}"
+            },
+            {
+              "name": "400 — Bad Input",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"detail\": \"Missing required field: input_type\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Ingest File Upload (PDF/DOCX)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "(Required) PDF or DOCX file"
+                },
+                {
+                  "key": "brand_id",
+                  "value": "{{brand_id}}",
+                  "type": "text",
+                  "description": "(Required) Brand UUID from /brands/create"
+                },
+                {
+                  "key": "brand_name",
+                  "value": "Acme Corp",
+                  "type": "text",
+                  "description": "(Optional) Brand name"
+                },
+                {
+                  "key": "skip_generation",
+                  "value": "false",
+                  "type": "text",
+                  "description": "(Optional) If true, ingests file but skips profile generation"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["ingest", "upload"]
+            },
+            "description": "Upload PDF/DOCX for voice profile extraction.\n\n⚠️ LATENCY: Takes 10-30 seconds for PDFs."
+          },
+          "response": [
+            {
+              "name": "200 — File Ingested",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"status\": \"DRAFT\",\n  \"version\": 1,\n  \"tone\": {\n    \"primary\": \"Professional\",\n    \"secondary\": [\"Analytical\"],\n    \"description\": \"Fact-based communication\"\n  },\n  \"dos\": [\"Use active voice\", \"Lead with data\"],\n  \"donts\": [\"Avoid exclamation marks\"],\n  \"best_match_examples\": [\n    { \"example_id\": \"ex_1\", \"text\": \"Our platform processes 10M transactions daily.\" },\n    { \"example_id\": \"ex_2\", \"text\": \"Data security follows ISO 27001 standards.\" },\n    { \"example_id\": \"ex_3\", \"text\": \"Integration requires three steps.\" }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Voice Profile by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ingest/profile/{{profile_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["ingest", "profile", "{{profile_id}}"]
+            },
+            "description": "Retrieve a voice profile by its UUID."
+          },
+          "response": [
+            {
+              "name": "200 — Profile Found",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"version\": 1,\n  \"status\": \"DRAFT\",\n  \"profile_data\": {\n    \"tone\": {\n      \"primary\": \"Professional\",\n      \"secondary\": [\"Analytical\", \"Authoritative\"],\n      \"description\": \"Fact-based and direct communication\"\n    },\n    \"rules\": {\n      \"dos\": [\"Use active voice\", \"Lead with data\"],\n      \"donts\": [\"Avoid exclamation marks\", \"No jargon\"],\n      \"forbidden_phrases\": [\"leverage\", \"synergy\"],\n      \"preferred_vocabulary\": [\"empower\", \"transform\"]\n    },\n    \"best_match_examples\": [\n      { \"example_id\": \"ex_1\", \"text\": \"Our platform processes 10M transactions daily.\" },\n      { \"example_id\": \"ex_2\", \"text\": \"Data security follows ISO 27001 standards.\" },\n      { \"example_id\": \"ex_3\", \"text\": \"Integration requires three steps.\" }\n    ],\n    \"system_prompt\": \"You are a professional brand voice assistant...\",\n    \"stats\": {\n      \"total_feedback_events\": 0,\n      \"accept_count\": 0,\n      \"rewrite_count\": 0,\n      \"acceptance_rate\": 0.0\n    }\n  }\n}"
+            },
+            {
+              "name": "404 — Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"detail\": \"Profile a1b2c3d4-... not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Brand Voice Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ingest/profiles/brand/{{brand_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["ingest", "profiles", "brand", "{{brand_id}}"]
+            },
+            "description": "Get the most recent voice profile for a brand."
+          },
+          "response": [
+            {
+              "name": "200 — Brand Profile Found",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"version\": 1,\n  \"status\": \"APPROVED\",\n  \"profile_data\": {\n    \"tone\": {\n      \"primary\": \"Professional\",\n      \"secondary\": [\"Analytical\"],\n      \"description\": \"Fact-based communication\"\n    },\n    \"rules\": {\n      \"dos\": [\"Use active voice\"],\n      \"donts\": [\"Avoid exclamation marks\"]\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Approve Voice Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ingest/approve/{{profile_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["ingest", "approve", "{{profile_id}}"]
+            },
+            "description": "Promote a voice profile from DRAFT to APPROVED.\nThis is the authoritative 'Save' action."
+          },
+          "response": [
+            {
+              "name": "200 — Profile Approved",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"status\": \"APPROVED\",\n  \"message\": \"Profile approved successfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Voice Profile Rules",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"system_prompt\": \"You are a brand voice assistant focused on clarity.\",\n  \"rules\": {\n    \"dos\": [\"Use active voice\", \"Lead with data\"],\n    \"donts\": [\"Avoid exclamation marks\", \"No jargon\"]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest/profile/{{profile_id}}/update",
+              "host": ["{{baseUrl}}"],
+              "path": ["ingest", "profile", "{{profile_id}}", "update"]
+            },
+            "description": "Update Phase 1 (Human) data for a profile. Allows editing system prompt and explicit rules."
+          },
+          "response": [
+            {
+              "name": "200 — Profile Updated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"success\",\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Agent 2 — Ideation (Content Brief)",
+      "item": [
+        {
+          "name": "Generate Content Brief",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand_id\": \"{{brand_id}}\",\n  \"topic\": \"AI in Healthcare\",\n  \"market\": \"Healthcare Technology\",\n  \"region\": \"North America\",\n  \"content_goal\": \"thought leadership\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ideation/ideate",
+              "host": ["{{baseUrl}}"],
+              "path": ["ideation", "ideate"]
+            },
+            "description": "Agent 2: Generate a content brief for a topic.\n\nRequired: brand_id, topic\nOptional: market, region, content_goal\n\n⚠️ Safe to retry (idempotent via fingerprinting)."
+          },
+          "response": [
+            {
+              "name": "200 — Brief Generated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"brief_id\": \"b2c3d4e5-f678-90ab-cdef-123456789012\",\n  \"content_brief\": {\n    \"target_audience\": \"Healthcare administrators evaluating AI adoption for clinical and operational workflows\",\n    \"seo_keywords\": [\n      \"AI diagnostics\",\n      \"healthcare AI\",\n      \"medical imaging AI\",\n      \"clinical decision support\",\n      \"FDA approved AI\"\n    ],\n    \"h2_outline\": [\n      \"AI Diagnostic Applications in Clinical Settings\",\n      \"Data Privacy and Compliance Considerations\",\n      \"Implementation Requirements and Integration Paths\",\n      \"ROI Metrics and Cost-Benefit Analysis\",\n      \"Future Outlook and Emerging Trends\"\n    ],\n    \"key_takeaways\": [\n      \"FDA has approved over 500 AI/ML-enabled medical devices as of 2025\",\n      \"Healthcare AI market projected to reach $45B by 2026\",\n      \"AI diagnostic tools reduce radiology reading time by 30-50%\",\n      \"Integration with existing EHR systems remains the primary adoption challenge\"\n    ]\n  },\n  \"constraints\": {\n    \"voice_profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n    \"must_follow_voice\": true\n  }\n}"
+            },
+            {
+              "name": "400 — Missing Fields",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"detail\": \"brand_id is required\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Brief by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ideation/brief/{{brief_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["ideation", "brief", "{{brief_id}}"]
+            },
+            "description": "Retrieve a specific content brief by its UUID."
+          },
+          "response": [
+            {
+              "name": "200 — Brief Found",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"brief_id\": \"b2c3d4e5-f678-90ab-cdef-123456789012\",\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"topic\": \"AI in Healthcare\",\n  \"content_brief_json\": {\n    \"target_audience\": \"Healthcare administrators\",\n    \"seo_keywords\": [\"AI diagnostics\", \"healthcare AI\"],\n    \"h2_outline\": [\"AI Diagnostic Applications\", \"Data Privacy\"],\n    \"key_takeaways\": [\"FDA approved 500+ AI devices\"]\n  },\n  \"created_at\": \"2026-02-19T07:05:00Z\"\n}"
+            },
+            {
+              "name": "404 — Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"detail\": \"Content brief b2c3d4e5-... not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Briefs for Brand",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ideation/briefs/{{brand_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["ideation", "briefs", "{{brand_id}}"]
+            },
+            "description": "Retrieve all content briefs for a specific brand.\nOptionally filter by topic with ?topic=AI"
+          },
+          "response": [
+            {
+              "name": "200 — Briefs Listed",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"count\": 2,\n  \"briefs\": [\n    {\n      \"brief_id\": \"b2c3d4e5-f678-90ab-cdef-123456789012\",\n      \"topic\": \"AI in Healthcare\",\n      \"created_at\": \"2026-02-19T07:05:00Z\"\n    },\n    {\n      \"brief_id\": \"d4e5f678-90ab-cdef-1234-567890123456\",\n      \"topic\": \"Digital Transformation\",\n      \"created_at\": \"2026-02-19T08:05:00Z\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Agent 3 — Execution (Content Generation)",
+      "item": [
+        {
+          "name": "Execute Content Generation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand_id\": \"{{brand_id}}\",\n  \"platforms\": [\"blog\", \"linkedin\", \"twitter\", \"email\"],\n  \"execution_mode\": \"single\",\n  \"execution_version\": \"v1\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/execute",
+              "host": ["{{baseUrl}}"],
+              "path": ["execute"]
+            },
+            "description": "Agent 3: Generate platform-native marketing copy.\n\nAuto-fetches voice profile + latest brief from DB using brand_id.\n\nPlatforms: blog, linkedin, twitter, email (pass any subset).\n\n⚠️ LATENCY: Takes 15-45 seconds.\n⚠️ NOT SAFE TO RETRY (expensive LLM calls)."
+          },
+          "response": [
+            {
+              "name": "200 — Content Generated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"blog\": {\n    \"title\": \"How AI Transforms Healthcare Diagnostics\",\n    \"content\": \"## What is AI in Healthcare\\n\\nArtificial intelligence is reshaping clinical workflows across the healthcare industry. From diagnostic imaging to patient data analysis, AI tools deliver measurable improvements in speed and accuracy.\\n\\n## Key Applications\\n\\nAI diagnostic tools reduce radiology reading time by 30-50%. The FDA has approved over 500 AI/ML-enabled medical devices, signaling institutional confidence in the technology.\\n\\n## Implementation Path\\n\\nIntegration requires three key steps: assessment of existing infrastructure, EHR system compatibility evaluation, and phased deployment with clinical validation.\"\n  },\n  \"linkedin\": {\n    \"post\": \"Healthcare AI is no longer theoretical. The data speaks for itself:\\n\\n📊 500+ FDA-approved AI medical devices\\n⚡ 30-50% reduction in radiology reading time\\n💰 $45B projected market by 2026\\n\\nThe question isn't whether to adopt AI in healthcare—it's how quickly you can integrate it into your clinical workflows.\\n\\nThree steps to get started:\\n1. Assess your current infrastructure\\n2. Evaluate EHR compatibility\\n3. Plan phased deployment with clinical validation\\n\\n#HealthcareAI #MedicalInnovation #DigitalHealth\"\n  },\n  \"twitter\": {\n    \"thread\": [\n      \"Healthcare AI is transforming diagnostics at scale. Here's what the data shows 🧵\",\n      \"1/ The FDA has approved 500+ AI/ML-enabled medical devices. This isn't experimental anymore.\",\n      \"2/ AI diagnostic tools cut radiology reading time by 30-50%. That's time redirected to patient care.\",\n      \"3/ The healthcare AI market hits $45B by 2026. Early adopters gain a measurable competitive edge.\",\n      \"4/ Integration starts with three steps: infrastructure assessment, EHR compatibility, phased deployment.\",\n      \"5/ The organizations acting now will define the standard of care for the next decade.\"\n    ]\n  },\n  \"email\": {\n    \"subject\": \"AI in Healthcare: 3 Steps to Transform Your Diagnostics\",\n    \"preview\": \"500+ FDA-approved AI devices. Here's your integration roadmap.\",\n    \"body\": \"Healthcare executives,\\n\\nAI-powered diagnostics are delivering measurable results across clinical settings. The FDA has approved over 500 AI/ML-enabled medical devices, and early adopters report 30-50% faster radiology reading times.\\n\\nHere is a three-step path to integration:\\n\\n1. Assess your current diagnostic infrastructure\\n2. Evaluate compatibility with your EHR systems\\n3. Plan a phased deployment with clinical validation metrics\\n\\nThe healthcare AI market reaches $45B by 2026. Organizations that integrate AI now gain a structural advantage in patient outcomes and operational efficiency.\",\n    \"cta\": \"Schedule a Diagnostic Assessment\"\n  }\n}"
+            },
+            {
+              "name": "400 — Missing Platforms",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"detail\": \"platforms list cannot be empty\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Execute with Manual Input",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand_voice_profile\": {\n    \"tone\": {\n      \"primary\": \"Professional\",\n      \"secondary\": [\"Empowering\", \"Clear\"],\n      \"description\": \"Professional yet approachable communication\"\n    },\n    \"dos\": [\"Use active voice\", \"Keep sentences under 20 words\"],\n    \"donts\": [\"Use jargon\", \"Write in passive voice\"],\n    \"forbidden_phrases\": [\"leverage\", \"synergy\"],\n    \"preferred_vocabulary\": [\"empower\", \"transform\"]\n  },\n  \"content_brief\": {\n    \"topic\": \"AI in Marketing\",\n    \"target_audience\": \"Marketing professionals\",\n    \"key_messages\": [\"AI saves time\", \"AI improves accuracy\"],\n    \"keywords\": [\"AI marketing\", \"automation\"],\n    \"cta\": \"Start your free trial\",\n    \"blog_outline\": [\"What is AI Marketing\", \"Benefits of AI\", \"Getting Started\"]\n  },\n  \"platforms\": [\"blog\", \"linkedin\", \"twitter\", \"email\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/execute",
+              "host": ["{{baseUrl}}"],
+              "path": ["execute"]
+            },
+            "description": "Execute with full manual input (no auto-fetch from DB).\nProvide brand_voice_profile and content_brief directly."
+          },
+          "response": [
+            {
+              "name": "200 — Content Generated (Manual)",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"blog\": {\n    \"title\": \"How AI Transforms Marketing\",\n    \"content\": \"## What is AI Marketing\\n\\nAI marketing empowers teams to automate repetitive tasks...\"\n  },\n  \"linkedin\": {\n    \"post\": \"AI is transforming marketing. Here's how:\\n\\n1. Saves 10+ hours per week\\n2. Improves campaign accuracy by 40%\\n\\n#AIMarketing #MarTech\"\n  },\n  \"twitter\": {\n    \"thread\": [\n      \"AI is changing marketing forever. Here's what you need to know 🧵\",\n      \"1/ AI saves marketers 10+ hours per week on repetitive tasks\",\n      \"2/ Start your AI journey today. Get a free trial 👇\"\n    ]\n  },\n  \"email\": {\n    \"subject\": \"Transform Your Marketing with AI\",\n    \"preview\": \"Discover how AI saves time and improves results\",\n    \"body\": \"Hi there,\\n\\nAI is revolutionizing how we market...\",\n    \"cta\": \"Start Free Trial\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Generated Content by Brand",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/execute/content/{{brand_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["execute", "content", "{{brand_id}}"]
+            },
+            "description": "Retrieve generated content for a brand.\nSupports v1 (single voice) and v2 (multi-persona).\nOptional query params: ?execution_version=v1&brief_id=UUID"
+          },
+          "response": [
+            {
+              "name": "200 — Content Retrieved",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"execution_version\": \"v1\",\n  \"content\": {\n    \"blog\": { \"title\": \"...\", \"content\": \"...\" },\n    \"linkedin\": { \"post\": \"...\" },\n    \"twitter\": { \"thread\": [\"...\"] },\n    \"email\": { \"subject\": \"...\", \"body\": \"...\", \"cta\": \"...\" }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Feedback & Profile Management",
+      "item": [
+        {
+          "name": "Submit Profile Feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"accept\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{{profile_id}}/feedback",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "{{profile_id}}", "feedback"]
+            },
+            "description": "Submit feedback on a voice profile.\nActions: 'accept', 'reject', 'rewrite'"
+          },
+          "response": [
+            {
+              "name": "200 — Feedback Recorded",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"action\": \"accept\",\n  \"acceptance_rate\": 0.85,\n  \"rewrite_count\": 2,\n  \"total_feedback_events\": 7\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Profile Feedback Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{{profile_id}}/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "{{profile_id}}", "stats"]
+            },
+            "description": "Get current feedback statistics for a voice profile."
+          },
+          "response": [
+            {
+              "name": "200 — Stats Retrieved",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"acceptance_rate\": 0.85,\n  \"rewrite_count\": 2,\n  \"total_feedback_events\": 7\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Voice Rules (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tone\": {\n    \"primary\": \"Conversational\",\n    \"secondary\": [\"Friendly\"],\n    \"description\": \"Warm and approachable communication\"\n  },\n  \"dos\": [\"Use simple language\", \"Address the reader directly\"],\n  \"donts\": [\"Avoid corporate jargon\", \"No passive voice\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/voice/{{brand_id}}/rules",
+              "host": ["{{baseUrl}}"],
+              "path": ["voice", "{{brand_id}}", "rules"]
+            },
+            "description": "Edit voice profile tone/dos/donts.\nCreates a NEW version of the profile in DRAFT status."
+          },
+          "response": [
+            {
+              "name": "200 — Rules Updated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Profile updated\",\n  \"version\": 2\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refine Profile (V1→V2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{{profile_id}}/refine",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "{{profile_id}}", "refine"]
+            },
+            "description": "Runs Agent-1 V2 refinement on an existing V1 profile.\nAdds dimensional_scores (radar chart data) and implicit_rules."
+          },
+          "response": [
+            {
+              "name": "200 — Refinement Complete",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"success\",\n  \"profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"refinement\": {\n    \"dimensional_scores\": {\n      \"humor\": 0.15,\n      \"empathy\": 0.45,\n      \"authority\": 0.85,\n      \"formality\": 0.75,\n      \"urgency\": 0.30\n    },\n    \"implicit_rules\": [\n      \"Prioritize data over anecdotes\",\n      \"Use precise numerical references\",\n      \"Maintain analytical distance from subject\"\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Brand Personas (V2)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/voice/{{brand_id}}/personas",
+              "host": ["{{baseUrl}}"],
+              "path": ["voice", "{{brand_id}}", "personas"]
+            },
+            "description": "List all V2 personas for a brand."
+          },
+          "response": [
+            {
+              "name": "200 — Personas Listed",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"success\",\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"count\": 2,\n  \"personas\": [\n    {\n      \"persona_id\": \"p1-uuid\",\n      \"name\": \"Technical Expert\",\n      \"tone\": { \"primary\": \"Authoritative\" }\n    },\n    {\n      \"persona_id\": \"p2-uuid\",\n      \"name\": \"Friendly Advisor\",\n      \"tone\": { \"primary\": \"Conversational\" }\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Pipeline Orchestration (Recommended for MCP)",
+      "description": "Server-side orchestration endpoints. The platform MCP server should use these to manage the 3-agent pipeline flow with state tracking.",
+      "item": [
+        {
+          "name": "Start Pipeline",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/start?brand_id={{brand_id}}&mode=v1",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "start"],
+              "query": [
+                { "key": "brand_id", "value": "{{brand_id}}", "description": "(Required) Brand UUID" },
+                { "key": "mode", "value": "v1", "description": "(Optional) v1 or v2. Default: v1" }
+              ]
+            },
+            "description": "Initialize a new pipeline for a brand.\nReturns pipeline_id and initial state.\nUse pipeline_id for all subsequent step/approve/reject calls."
+          },
+          "response": [
+            {
+              "name": "200 — Pipeline Started",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"pipeline_id\": \"c3d4e5f6-7890-abcd-ef12-345678901234\",\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"trace_id\": \"a1b2c3d4e5f67890abcdef1234567890\",\n  \"mode\": \"v1\",\n  \"status\": \"IDLE\",\n  \"created_at\": \"2026-02-19T07:00:00Z\",\n  \"updated_at\": \"2026-02-19T07:00:00Z\",\n  \"voice_profile_id\": null,\n  \"brief_id\": null,\n  \"execution_id\": null,\n  \"steps\": {\n    \"voice_profiling\": \"PENDING\",\n    \"ideation\": \"PENDING\",\n    \"execution\": \"PENDING\"\n  },\n  \"metadata\": {},\n  \"error\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Pipeline State",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/{{pipeline_id}}/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "{{pipeline_id}}", "state"]
+            },
+            "description": "Get the current state of a pipeline."
+          },
+          "response": [
+            {
+              "name": "200 — Pipeline State",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"pipeline_id\": \"c3d4e5f6-7890-abcd-ef12-345678901234\",\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"trace_id\": \"a1b2c3d4e5f67890abcdef1234567890\",\n  \"mode\": \"v1\",\n  \"status\": \"IN_PROGRESS\",\n  \"voice_profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"brief_id\": \"b2c3d4e5-f678-90ab-cdef-123456789012\",\n  \"execution_id\": null,\n  \"steps\": {\n    \"voice_profiling\": \"COMPLETED\",\n    \"ideation\": \"COMPLETED\",\n    \"execution\": \"PENDING\"\n  },\n  \"metadata\": {},\n  \"error\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Run Pipeline Step — Voice Profiling",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input_type\": \"url\",\n  \"input_value\": \"https://acmecorp.com/about\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/{{pipeline_id}}/step/voice_profiling",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "{{pipeline_id}}", "step", "voice_profiling"]
+            },
+            "description": "Execute voice profiling step (Agent 1).\nPayload: input_type + input_value (same as /ingest).\n\n⚠️ LATENCY: 10-30 seconds."
+          },
+          "response": [
+            {
+              "name": "200 — Voice Profiling Complete",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"pipeline_id\": \"c3d4e5f6-7890-abcd-ef12-345678901234\",\n  \"status\": \"IN_PROGRESS\",\n  \"voice_profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"steps\": {\n    \"voice_profiling\": \"COMPLETED\",\n    \"ideation\": \"PENDING\",\n    \"execution\": \"PENDING\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Approve Step — Voice Profiling",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"feedback\": \"Looks good, approved.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/{{pipeline_id}}/approve/voice_profiling",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "{{pipeline_id}}", "approve", "voice_profiling"]
+            },
+            "description": "Approve the voice profile artifact.\nTransition: DRAFT → APPROVED\nFeedback is optional."
+          },
+          "response": [
+            {
+              "name": "200 — Step Approved",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"pipeline_id\": \"c3d4e5f6-7890-abcd-ef12-345678901234\",\n  \"status\": \"IN_PROGRESS\",\n  \"steps\": {\n    \"voice_profiling\": \"COMPLETED\",\n    \"ideation\": \"PENDING\",\n    \"execution\": \"PENDING\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Run Pipeline Step — Ideation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"AI in Healthcare\",\n  \"market\": \"Healthcare Technology\",\n  \"region\": \"North America\",\n  \"content_goal\": \"thought leadership\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/{{pipeline_id}}/step/ideation",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "{{pipeline_id}}", "step", "ideation"]
+            },
+            "description": "Execute ideation step (Agent 2).\nRequires voice_profiling to be completed first."
+          },
+          "response": [
+            {
+              "name": "200 — Ideation Complete",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"pipeline_id\": \"c3d4e5f6-7890-abcd-ef12-345678901234\",\n  \"status\": \"IN_PROGRESS\",\n  \"brief_id\": \"b2c3d4e5-f678-90ab-cdef-123456789012\",\n  \"steps\": {\n    \"voice_profiling\": \"COMPLETED\",\n    \"ideation\": \"COMPLETED\",\n    \"execution\": \"PENDING\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Approve Step — Ideation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"feedback\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/{{pipeline_id}}/approve/ideation",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "{{pipeline_id}}", "approve", "ideation"]
+            },
+            "description": "Approve the content brief artifact."
+          },
+          "response": [
+            {
+              "name": "200 — Ideation Approved",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"pipeline_id\": \"c3d4e5f6-7890-abcd-ef12-345678901234\",\n  \"status\": \"IN_PROGRESS\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Run Pipeline Step — Execution",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"platforms\": [\"blog\", \"linkedin\", \"twitter\", \"email\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/{{pipeline_id}}/step/execution",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "{{pipeline_id}}", "step", "execution"]
+            },
+            "description": "Execute content generation step (Agent 3).\nRequires ideation to be completed and approved first.\n\n⚠️ LATENCY: 15-45 seconds.\n⚠️ NOT SAFE TO RETRY."
+          },
+          "response": [
+            {
+              "name": "200 — Execution Complete",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"pipeline_id\": \"c3d4e5f6-7890-abcd-ef12-345678901234\",\n  \"status\": \"COMPLETED\",\n  \"execution_id\": \"e5f67890-abcd-ef12-3456-789012345678\",\n  \"steps\": {\n    \"voice_profiling\": \"COMPLETED\",\n    \"ideation\": \"COMPLETED\",\n    \"execution\": \"COMPLETED\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reject Step",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"feedback\": \"Tone is too formal, needs to be more conversational.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/{{pipeline_id}}/reject/voice_profiling",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "{{pipeline_id}}", "reject", "voice_profiling"]
+            },
+            "description": "Reject an artifact.\nTransition: DRAFT → REJECTED\nstep_name: 'voice_profiling' or 'ideation'"
+          },
+          "response": [
+            {
+              "name": "200 — Step Rejected",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"pipeline_id\": \"c3d4e5f6-7890-abcd-ef12-345678901234\",\n  \"status\": \"IN_PROGRESS\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Regenerate Voice Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pipeline/regenerate/{{brand_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["pipeline", "regenerate", "{{brand_id}}"]
+            },
+            "description": "Force regenerate a voice profile.\nAccepts brand_id OR profile_id (auto-resolves)."
+          },
+          "response": [
+            {
+              "name": "200 — Profile Regenerated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"brand_id\": \"7979249c-f62b-4d42-85fb-48dca9035bbc\",\n  \"previous_profile_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"new_profile\": {\n    \"profile_id\": \"f6789012-abcd-ef12-3456-7890abcdef12\",\n    \"version\": 2\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent 1 - Results</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            padding: 2rem;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #222;
+        }
+
+        h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #03dac6 0%, #bb86fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-view-json {
+            background: #111;
+            color: #03dac6;
+            border: 1px solid #03dac6;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .btn-view-json:hover {
+            background: #03dac6;
+            color: #000;
+            transform: translateY(-1px);
+        }
+
+        .results-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            color: #03dac6;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rule-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .rule-list li {
+            padding: 0.75rem;
+            background: #0a0a0a;
+            border-left: 3px solid #03dac6;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .summary-item {
+            background: #0a0a0a;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            color: #03dac6;
+            font-weight: 700;
+        }
+
+        .summary-label {
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .dimensional-scores {
+            margin-top: 1.5rem;
+        }
+
+        .score-bar {
+            margin-bottom: 1rem;
+        }
+
+        .score-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .score-track {
+            height: 8px;
+            background: #222;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #03dac6, #bb86fc);
+            border-radius: 4px;
+            transition: width 0.5s ease-out;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            color: #03dac6;
+            font-size: 1.5rem;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 2rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .btn-close:hover {
+            color: #fff;
+        }
+
+        .json-toolbar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .json-toolbar button {
+            padding: 0.625rem 1.25rem;
+            background: #222;
+            color: #fff;
+            border: 1px solid #333;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .json-toolbar button:hover {
+            background: #333;
+            border-color: #03dac6;
+        }
+
+        .json-display {
+            background: #0a0a0a;
+            color: #03dac6;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            max-height: 50vh;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            border: 1px solid #222;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Brand Voice Created</h1>
+            <button class="btn-view-json" onclick="showRawJSON()">📄 View Raw JSON</button>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="results-card">
+            <div class="section-title">📊 Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-number" id="dos-count">-</div>
+                    <div class="summary-label">Do's</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" id="donts-count">-</div>
+                    <div class="summary-label">Don'ts</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" id="forbidden-count">-</div>
+                    <div class="summary-label">Forbidden Phrases</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dimensional Scores -->
+        <div class="results-card">
+            <div class="section-title">🎯 Dimensional Scores</div>
+            <div class="dimensional-scores" id="dimensional-scores">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Do's -->
+        <div class="results-card">
+            <div class="section-title">✅ Do's</div>
+            <ul class="rule-list" id="dos-list">
+                <!-- Populated by JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Don'ts -->
+        <div class="results-card">
+            <div class="section-title">❌ Don'ts</div>
+            <ul class="rule-list" id="donts-list">
+                <!-- Populated by JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Forbidden Phrases -->
+        <div class="results-card">
+            <div class="section-title">🚫 Forbidden Phrases</div>
+            <div id="forbidden-phrases">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw JSON Modal -->
+    <div id="raw-json-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agent 1 Raw Response</h3>
+                <button class="btn-close" onclick="closeRawJSON()">×</button>
+            </div>
+            <div class="json-toolbar">
+                <button onclick="copyJSON()">📋 Copy to Clipboard</button>
+                <button onclick="downloadJSON()">⬇️ Download JSON</button>
+            </div>
+            <pre id="raw-json-display" class="json-display"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Store response data
+        let responseData = null;
+
+        // Load data from URL parameters or sessionStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            // Try to get data from sessionStorage (set by ingestion page)
+            const storedData = sessionStorage.getItem('agent1_result');
+            if (storedData) {
+                responseData = JSON.parse(storedData);
+                displayResults(responseData);
+            } else {
+                // Fallback: try to fetch from API
+                const urlParams = new URLSearchParams(window.location.search);
+                const brandId = urlParams.get('brand_id');
+                if (brandId) {
+                    fetchResults(brandId);
+                }
+            }
+        });
+
+        function displayResults(data) {
+            // Extract raw_json if available
+            const rawJson = data.raw_json || data;
+            const golden = rawJson.raw_json || rawJson;
+
+            // Summary counts
+            if (rawJson.summary) {
+                document.getElementById('dos-count').textContent = rawJson.summary.dos_count || 0;
+                document.getElementById('donts-count').textContent = rawJson.summary.donts_count || 0;
+                document.getElementById('forbidden-count').textContent = rawJson.summary.forbidden_phrases_count || 0;
+            } else {
+                // Fallback
+                document.getElementById('dos-count').textContent = data.dos?.length || 0;
+                document.getElementById('donts-count').textContent = data.donts?.length || 0;
+                document.getElementById('forbidden-count').textContent = 0;
+            }
+
+            // Dimensional scores
+            if (rawJson.summary?.dimensional_scores) {
+                renderDimensionalScores(rawJson.summary.dimensional_scores);
+            }
+
+            // Do's list
+            const dosList = document.getElementById('dos-list');
+            const dos = golden.explicit_rules?.dos || data.dos || [];
+            dosList.innerHTML = dos.map(rule => `<li>${rule}</li>`).join('');
+
+            // Don'ts list
+            const dontsList = document.getElementById('donts-list');
+            const donts = golden.explicit_rules?.donts || data.donts || [];
+            dontsList.innerHTML = donts.map(rule => `<li>${rule}</li>`).join('');
+
+            // Forbidden phrases
+            const forbiddenDiv = document.getElementById('forbidden-phrases');
+            const forbidden = golden.explicit_rules?.forbidden_phrases || [];
+            if (forbidden.length > 0) {
+                forbiddenDiv.innerHTML = forbidden.map(phrase =>
+                    `<span style="display:inline-block; padding:0.5rem 1rem; background:#0a0a0a; border-radius:20px; margin:0.25rem; border:1px solid #333;">${phrase}</span>`
+                ).join('');
+            } else {
+                forbiddenDiv.innerHTML = '<div style="color:#666;">None specified</div>';
+            }
+        }
+
+        function renderDimensionalScores(scores) {
+            const container = document.getElementById('dimensional-scores');
+            const dimensions = ['Humor', 'Empathy', 'Authority', 'Formality', 'Urgency'];
+
+            container.innerHTML = dimensions.map(dim => {
+                const score = scores[dim] || 0;
+                const percentage = (score * 100).toFixed(0);
+                return `
+                    <div class="score-bar">
+                        <div class="score-label">
+                            <span>${dim}</span>
+                            <span style="color:#03dac6;">${percentage}%</span>
+                        </div>
+                        <div class="score-track">
+                            <div class="score-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Raw JSON Modal Functions
+        function showRawJSON() {
+            if (!responseData) {
+                alert('No raw JSON data available');
+                return;
+            }
+
+            const jsonDisplay = document.getElementById('raw-json-display');
+            jsonDisplay.textContent = JSON.stringify(responseData.raw_json || responseData, null, 2);
+            document.getElementById('raw-json-modal').classList.add('active');
+        }
+
+        function closeRawJSON() {
+            document.getElementById('raw-json-modal').classList.remove('active');
+        }
+
+        function copyJSON() {
+            const text = document.getElementById('raw-json-display').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Copied to clipboard!');
+            }).catch(err => {
+                alert('❌ Failed to copy: ' + err);
+            });
+        }
+
+        function downloadJSON() {
+            const data = responseData.raw_json || responseData;
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `agent1_response_${data.persona_id || Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function fetchResults(brandId) {
+            // Fetch from API endpoint
+            fetch(`/api/brands/${brandId}/profile`)
+                .then(res => res.json())
+                .then(data => {
+                    responseData = data;
+                    displayResults(data);
+                })
+                .catch(err => {
+                    console.error('Failed to load results:', err);
+                });
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeRawJSON();
+            }
+        });
+
+        // Close modal on background click
+        document.getElementById('raw-json-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'raw-json-modal') {
+                closeRawJSON();
+            }
+        });
+    </script>
+</body>
+
+</html>

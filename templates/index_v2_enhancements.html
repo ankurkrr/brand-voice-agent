@@ -1,0 +1,114 @@
+<!-- ENHANCEMENT PATCH FOR index.html -->
+<!-- This file contains code snippets to add to your existing index.html -->
+
+<!-- 
+====================================================================
+STEP 1: Add Video/Audio Upload Tab
+Add this line around line 194 (in the tabs section):
+====================================================================
+-->
+<div class="tab" onclick="setMode('video')">Upload Video/Audio</div>
+
+
+<!-- 
+====================================================================
+STEP 2: Update setMode() Function
+Replace the existing setMode() function with this enhanced version:
+====================================================================
+-->
+<script>
+    let currentMode = 'text';
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+
+        const container = document.getElementById('input-container');
+        if (mode === 'text') {
+            container.innerHTML = `<textarea id="input_value" rows="3" placeholder="Paste brand guidelines..."></textarea>`;
+        } else if (mode === 'url') {
+            container.innerHTML = `<input type="text" id="input_value" placeholder="https://yourbrand.com/about">`;
+        } else if (mode === 'pdf') {
+            container.innerHTML = `<input type="file" id="input_file" accept=".pdf,.docx">`;
+        } else if (mode === 'video') {
+            container.innerHTML = `
+            <input type="file" id="input_file" accept="video/*,audio/*">
+            <div class="helper-text" style="margin-top: 0.5rem;">
+                📹 Supports MP4, MOV, MP3, WAV - Automatically extracts persona rules from speech
+            </div>
+            <div id="upload-progress" style="display: none; margin-top: 1rem;">
+                <div style="background: #222; height: 4px; border-radius: 2px; overflow: hidden;">
+                    <div id="progress-bar" style="background: #03dac6; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                </div>
+                <div id="progress-text" style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Uploading...</div>
+            </div>
+        `;
+        }
+    }
+</script>
+
+
+<!--
+====================================================================
+STEP 3: Update submitIngest() Function
+Add this code INSIDE the submitIngest() function, AFTER line 256:
+====================================================================
+-->
+<script>
+    // Add this block right after the topic validation
+    if (currentMode === 'video') {
+        const fileInput = document.getElementById('input_file');
+        if (!fileInput.files[0]) throw new Error("Select a video/audio file.");
+
+        const formData = new FormData();
+        if (brandName) formData.append("brand_name", brandName);
+        formData.append("file", fileInput.files[0]);
+        formData.append("persona_name", topic || "Untitled Persona");
+
+        // Show progress
+        document.getElementById('upload-progress').style.display = 'block';
+
+        // Upload with progress tracking
+        const xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = (e.loaded / e.total) * 100;
+                document.getElementById('progress-bar').style.width = percent + '%';
+                document.getElementById('progress-text').textContent =
+                    percent < 100 ? `Uploading... ${percent.toFixed(0)}%` : 'Processing transcription...';
+            }
+        });
+
+        xhr.open('POST', '/api/personas/upload-media');
+        xhr.send(formData);
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                window.location.href = `/personas?brand_id=${data.brand_id}`;
+            } else {
+                err.innerText = 'Upload failed: ' + xhr.statusText;
+                err.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = "Generate Response →";
+            }
+        };
+
+        return; // Exit early for video mode
+    }
+</script>
+
+
+<!--
+====================================================================
+STEP 4: Add Navigation Link to Personas Page
+Add this after the hero-subtitle (around line 184):
+====================================================================
+-->
+<div style="text-align: center; margin-bottom: 1rem;">
+    <a href="/personas" style="color: #666; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;"
+        onmouseover="this.style.color='#03dac6'" onmouseout="this.style.color='#666'">
+        📊 Manage Personas →
+    </a>
+</div>

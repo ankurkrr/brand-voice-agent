@@ -1,0 +1,11 @@
+subject_max_chars: 60
+subject_ideal_chars: 40
+preview_max_chars: 100
+preview_min_chars: 50
+body_max_words: 200
+structure: "Subject -> Preview -> Greeting -> Value -> CTA"
+formatting: "Short paragraphs, single CTA button"
+tone: "Direct, benefit-focused, actionable"
+required_elements:
+  - "Subject Line"
+  - "Call to Action"

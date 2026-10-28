@@ -1,0 +1,33 @@
+--- RAW EXECUTION DATA ---,,,,,,
+ID,Request ID,Agent Name,Prompt Tokens,Completion Tokens,Total Tokens,Cost (USD)
+12,e4347d3e-eecf-47f4-982c-ad47ebb4906d,agent1_voice_v1,1753,499,5979,0.000281175
+13,f6250c35-146a-456d-8e3f-7ccacd7006bb,agent1_voice_v2,1430,646,4401,0.00030105
+14,a8aad727-d9ab-491e-b0df-a94879475bb7,agent1_voice_v2,1430,503,4019,0.00025815
+15,7c31626a-169c-43fd-87e6-7f6d05a44a5e,agent2_ideation,1614,441,3981,0.00025335
+16,e54986e6-e355-4892-b5df-568e4cfde66b,agent2_ideation,1614,452,4366,0.00025665
+17,860214ee-ece1-4249-bea9-92b17cf073cc,agent2_ideation,549,3,3956,0.000042075
+18,ad270d99-52c1-4b35-ad90-cd2d25b600c5,agent2_ideation,565,3,4065,0.000043275
+19,d480ea35-ded2-4501-b758-3cc28f352a65,agent2_ideation,1770,555,5064,0.00029925
+20,f9f38be1-dbc2-459f-a232-297ca2b081a0,agent2_ideation,564,3,2547,0.0000432
+21,a0a0911e-6660-41aa-821c-67e5f44b4e55,agent3_execution_v1,2687,2191,8475,0.000858825
+22,d7204703-0d62-4001-93a5-7633cbbf570e,agent3_execution_v1,2697,1793,9430,0.000740175
+23,1dcc6249-9b2f-44b9-acf7-40d30207c37e,agent3_execution_v1,2681,2151,11571,0.000846375
+,,,,,,
+--- AGENT SUMMARY ---,,,,,,
+Agent Name,Prompt Tokens,Completion Tokens,Total Tokens,Cost (USD),,
+agent1_voice_v1,1753,499,5979,0.000281175,,
+agent1_voice_v2,2860,1149,8420,0.0005592,,
+agent2_ideation,6676,1457,23979,0.0009378,,
+agent3_execution_v1,8065,6135,29476,0.002445375,,
+,,,,,,
+--- TOTAL PIPELINE EXECUTION ---,,,,,,
+Total Prompt Tokens,Total Completion Tokens,Total Tokens,Total Cost (USD),,,
+19354,9240,67854,$0.00422355,,,
+,,,,,,
+--- MONTHLY PROJECTIONS (30 Days) ---,,,,,,
+Scenario,Pipeline Runs/Mo,Monthly Prompt,Monthly Completion,Monthly Cost (USD),,
+1 Execution / Day,30,580620,277200,$0.13,,
+10 Executions / Day,300,5806200,2772000,$1.27,,
+100 Executions / Day,3000,58062000,27720000,$12.67,,
+1,000 Executions / Day,30000,580620000,277200000,$126.71,
+10,000 Executions / Day,300000,5806200000,2772000000,$1267.07,

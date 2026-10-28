@@ -1,0 +1,2891 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Voice & Persona Ingestion - Results</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #121212;
+            color: #fff;
+            min-height: 100vh;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            /* Prevent body scroll */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .header h1 {
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+            font-size: 1.5rem;
+        }
+
+        .meta-tag {
+            display: inline-block;
+            background: #222;
+            padding: 0.2rem 0.6rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: #888;
+            border: 1px solid #333;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            background: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 100px);
+            /* Dynamic fit */
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #2d2d2d;
+            background: #181818;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #222;
+            color: #aaa;
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: #1e1e1e;
+        }
+
+        .tab-btn.active.t-agent1 {
+            border-bottom-color: #03dac6;
+        }
+
+        .tab-btn.active.t-agent2 {
+            border-bottom-color: #f77f00;
+        }
+
+        .tab-btn.active.t-agent3 {
+            border-bottom-color: #bb86fc;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-label {
+            color: #888;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .text-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ddd;
+        }
+
+        /* Edit Controls */
+        .edit-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #333;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #03dac6;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #00c4b4;
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+            border: 1px solid #444;
+        }
+
+        .btn-secondary:hover {
+            background: #444;
+        }
+
+        .editable-input {
+            width: 100%;
+            background: #000;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-family: inherit;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Agent 3 Styles */
+        .a3-tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid #333;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .a3-tab {
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            font-size: 0.95rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .a3-tab:hover {
+            color: #bbb;
+            background: #222;
+        }
+
+        .a3-tab.active {
+            color: #bb86fc;
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid #bb86fc;
+        }
+
+        .a3-content-box {
+            background: #151515;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .scroll-text {
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: inherit;
+            line-height: 1.7;
+            color: #ccc;
+            padding-right: 0.5rem;
+        }
+
+        .scroll-text::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-text::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #bb86fc 0%, #9955e8 100%);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-copy:hover {
+            opacity: 0.9;
+        }
+
+        /* Config Form */
+        .config-form {
+            max-width: 500px;
+            margin: 3rem auto;
+            text-align: left;
+        }
+
+        .dropdown-select {
+            width: 100%;
+            padding: 1rem;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Loading */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            min-height: 200px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .dropdown-select:focus {
+            outline: none;
+            border-color: #bb86fc;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #03dac6;
+            color: #000;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(3, 218, 198, 0.4);
+            z-index: 1000;
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-box {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .modal-message {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* New Session Button */
+        .btn-new-response {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            text-decoration: none;
+            background: #bb86fc;
+            color: #000;
+            font-weight: 600;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(187, 134, 252, 0.3);
+            z-index: 100;
+        }
+
+        .btn-new-response:hover {
+            background: #9955e8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(187, 134, 252, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Right Action -->
+    <a href="/" class="btn-new-response">
+        <span>+</span> Generate New Response
+    </a>
+
+    <!-- Modal Container -->
+    <div id="modal" style="display:none;"></div>
+
+    <!-- Agent 1 Raw JSON Modal -->
+    <div id="raw-agent1-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width:800px; max-height:80vh; overflow-y:auto;"
+            onclick="event.stopPropagation()">
+            <div class="modal-header"
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h3 style="color:#03dac6; font-size:1.5rem; margin:0;">Agent 1 Raw Response</h3>
+                <button class="btn-close"
+                    style="background:transparent; border:none; color:#666; font-size:2rem; cursor:pointer; line-height:1;"
+                    onclick="closeAgent1RawJSON()">×</button>
+            </div>
+            <div style="display:flex; gap:0.75rem; margin-bottom:1rem;">
+                <button onclick="copyAgent1JSON()"
+                    style="padding:0.625rem 1.25rem; background:#222; color:#fff; border:1px solid #333; border-radius:6px; cursor:pointer; font-size:0.875rem;">📋
+                    Copy to Clipboard</button>
+                <button onclick="downloadAgent1JSON()"
+                    style="padding:0.625rem 1.25rem; background:#222; color:#fff; border:1px solid #333; border-radius:6px; cursor:pointer; font-size:0.875rem;">⬇️
+                    Download JSON</button>
+            </div>
+            <pre id="raw-agent1-display"
+                style="background:#0a0a0a; color:#03dac6; padding:1.5rem; border-radius:8px; overflow-x:auto; max-height:50vh; font-family:'Courier New',monospace; font-size:0.875rem; line-height:1.6; border:1px solid #222;"></pre>
+        </div>
+    </div>
+
+    <!-- Agent 2 Raw JSON Modal -->
+    <div id="raw-agent2-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width:800px; max-height:80vh; overflow-y:auto;"
+            onclick="event.stopPropagation()">
+            <div class="modal-header"
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h3 style="color:#f77f00; font-size:1.5rem; margin:0;">Agent 2 Raw Response</h3>
+                <button class="btn-close"
+                    style="background:transparent; border:none; color:#666; font-size:2rem; cursor:pointer; line-height:1;"
+                    onclick="closeAgent2RawJSON()">×</button>
+            </div>
+            <div style="display:flex; gap:0.75rem; margin-bottom:1rem;">
+                <button onclick="copyAgent2JSON()"
+                    style="padding:0.625rem 1.25rem; background:#222; color:#fff; border:1px solid #333; border-radius:6px; cursor:pointer; font-size:0.875rem;">📋
+                    Copy to Clipboard</button>
+                <button onclick="downloadAgent2JSON()"
+                    style="padding:0.625rem 1.25rem; background:#222; color:#fff; border:1px solid #333; border-radius:6px; cursor:pointer; font-size:0.875rem;">⬇️
+                    Download JSON</button>
+            </div>
+            <pre id="raw-agent2-display"
+                style="background:#0a0a0a; color:#f77f00; padding:1.5rem; border-radius:8px; overflow-x:auto; max-height:50vh; font-family:'Courier New',monospace; font-size:0.875rem; line-height:1.6; border:1px solid #222;"></pre>
+        </div>
+    </div>
+
+    <!-- Agent 3 Raw JSON Modal -->
+    <div id="raw-agent3-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width:800px; max-height:80vh; overflow-y:auto;"
+            onclick="event.stopPropagation()">
+            <div class="modal-header"
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h3 style="color:#bb86fc; font-size:1.5rem; margin:0;">Agent 3 Raw Response</h3>
+                <button class="btn-close"
+                    style="background:transparent; border:none; color:#666; font-size:2rem; cursor:pointer; line-height:1;"
+                    onclick="closeAgent3RawJSON()">×</button>
+            </div>
+            <div style="display:flex; gap:0.75rem; margin-bottom:1rem;">
+                <button onclick="copyAgent3JSON()"
+                    style="padding:0.625rem 1.25rem; background:#222; color:#fff; border:1px solid #333; border-radius:6px; cursor:pointer; font-size:0.875rem;">📋
+                    Copy to Clipboard</button>
+                <button onclick="downloadAgent3JSON()"
+                    style="padding:0.625rem 1.25rem; background:#222; color:#fff; border:1px solid #333; border-radius:6px; cursor:pointer; font-size:0.875rem;">⬇️
+                    Download JSON</button>
+            </div>
+            <pre id="raw-agent3-display"
+                style="background:#0a0a0a; color:#bb86fc; padding:1.5rem; border-radius:8px; overflow-x:auto; max-height:50vh; font-family:'Courier New',monospace; font-size:0.875rem; line-height:1.6; border:1px solid #222;"></pre>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>Voice Meta Results</h1>
+        <div class="meta-tag" id="meta-tag">Loading...</div>
+    </div>
+
+    <div class="main-container">
+        <!-- Navigation -->
+        <div class="tabs">
+            <button class="tab-btn t-agent1 active" onclick="switchTab('agent1')">Agent 1: Voice Profile</button>
+            <button class="tab-btn t-agent2" onclick="switchTab('agent2')">Agent 2: Strategy</button>
+            <button class="tab-btn t-agent3" onclick="switchTab('agent3')">Agent 3: Execution</button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+
+            <!-- Agent 1 Content -->
+            <div id="tab-agent1" class="tab-content active">
+                <div id="agent1-loading" class="loading-state">
+                    <div class="spinner" style="border-top-color: #03dac6;"></div>
+                    <span>Loading Profile...</span>
+                </div>
+                <div id="agent1-data" style="display:none;"></div>
+            </div>
+
+            <!-- Agent 2 Content -->
+            <div id="tab-agent2" class="tab-content">
+                <!-- Agent 2 auto-triggers after Agent 1 completes -->
+                <div id="agent2-loading" class="loading-state" style="display:none;">
+                    <div class="spinner" style="border-top-color: #f77f00;"></div>
+                    <span>Generating Strategy...</span>
+                </div>
+                <div id="agent2-data" style="display:none;"></div>
+            </div>
+
+            <!-- Agent 3 Content -->
+            <div id="tab-agent3" class="tab-content">
+                <div id="agent3-start" style="text-align:center; padding:3rem;">
+                    <p style="color:#888; margin-bottom:1.5rem;">Strategy Ready. Generate multi-platform content?</p>
+                    <div class="config-form" style="margin:0 auto; margin-bottom:1rem;">
+                        <select id="execution-mode" class="dropdown-select" onchange="togglePersonaSelector()">
+                            <option value="single">Single Version (default)</option>
+                            <option value="multi">Multi-Persona Suite (V2)</option>
+                        </select>
+
+                        <!-- V2 Persona Selector -->
+                        <div id="persona-selector-container"
+                            style="display:none; text-align:left; background:#1a1a1a; padding:1rem; border-radius:6px; border:1px solid #333; margin-bottom:1.5rem;">
+                            <label
+                                style="color:#03dac6; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:0.8rem;">Select
+                                Target Personas</label>
+                            <div id="persona-list" style="display:flex; flex-wrap:wrap; gap:0.8rem;">
+                                <div style="color:#666; font-size:0.9rem;">Loading personas...</div>
+                            </div>
+                            <div style="margin-top:0.5rem; font-size:0.8rem; color:#666;">
+                                * Selected personas will be generated sequentially.
+                            </div>
+                        </div>
+
+                    </div>
+                    <button id="btn-start-agent3" class="btn btn-primary"
+                        style="background:#bb86fc; color:#000; max-width:200px;" onclick="triggerAgent3()">
+                        🚀 Generate Content
+                    </button>
+                </div>
+
+                <div id="agent3-loading" class="loading-state" style="display:none;">
+                    <div class="spinner" style="border-top-color: #bb86fc;"></div>
+                    <span>Generating Content...</span>
+                </div>
+
+                <!-- Result Display -->
+                <div id="agent3-data" style="display:none;"></div>
+
+                <!-- Save All Section -->
+                <div id="save-all-section"
+                    style="display:none; margin-top:3rem; padding-top:2rem; border-top:1px solid #333; text-align:center;">
+                    <h3 style="color:#03dac6; margin-bottom:0.5rem;">🎉 Workflow Complete!</h3>
+                    <p style="color:#888; margin-bottom:2rem;">Review your content above. When ready, save everything to
+                        the database.</p>
+
+                    <div style="display:flex; justify-content:center; gap:1rem;">
+                        <button class="btn btn-primary"
+                            style="background:#03dac6; color:#000; max-width:250px; font-size:1.1rem; padding:1rem;"
+                            onclick="saveAllResponses()">
+                            💾 Save All to Database
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetAgent3()"
+                            style="background:#bb86fc; color:#000; max-width:200px;">
+                            🔄 Generate Different Version
+                        </button>
+                        <button class="btn btn-secondary" style="background:#cf6679; color:#fff; max-width:200px;"
+                            onclick="discardSession()">
+                            🗑️ Discard & Start Over
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        console.log("🚀 SCRIPT START - JavaScript IS loading");
+        console.log("🚀 About to define constants and functions");
+
+        const params = new URLSearchParams(window.location.search);
+        const BRAND_ID = params.get('brand_id');
+        const TOPIC = params.get('topic');
+
+        document.getElementById('meta-tag').innerText = `Brand ID: ${BRAND_ID} | Topic: ${TOPIC}`;
+
+        if (!BRAND_ID) window.location.href = '/';
+
+        // --- Session State Management (New Workflow) ---
+        let sessionState = {
+            brand_id: BRAND_ID,
+            brand_name: BRAND_ID, // Will update with real name
+            session_id: null,
+            persona_hash: null,
+            agent1_data: null,
+            agent2_data: null,
+            agent3_data: null,
+            steps: {
+                agent1: { status: 'pending', approved: false }, // pending, generated, approved
+                agent2: { status: 'locked' }, // locked, ready, generated
+                agent3: { status: 'locked' }  // locked, ready, generated
+            }
+        };
+
+
+
+
+        // --- Renderers (Moved to top to prevent ReferenceError) ---
+
+        function renderAgent1(data) {
+            console.log("🟢 [RENDER 0] renderAgent1 function ENTRY - before try block");
+
+            try {
+                console.log("🟢 [RENDER 1] Inside try block, data:", data);
+
+                console.log("🟢 [RENDER 2] Hiding loader...");
+                const loader = document.getElementById('agent1-loading');
+                const container = document.getElementById('agent1-data');
+                if (loader) loader.style.display = 'none';
+                if (!container) {
+                    console.error("[renderAgent1] FATAL: agent1-data container not found");
+                    return;
+                }
+                container.style.display = 'block';
+
+                // Store response data for raw JSON viewing
+                agent1ResponseData = data;
+
+                const p = data.profile_data || data;
+                const tone = p.tone || {};
+                const dos = p.rules?.dos || p.dos || [];
+                const donts = p.rules?.donts || p.donts || [];
+
+                // Extract Phase 2 fields from either top-level or nested in profile_data
+                const personaId = data.persona_id || p.persona_id;
+                const personaName = data.persona_name || p.persona_name;
+                const version = data.version || p.version;
+                const dimensionalScores = data.dimensional_scores || p.dimensional_scores;
+
+                console.log("[renderAgent1] Building HTML template...");
+                container.innerHTML = `
+        <div id="view-mode">
+            <div style="margin-bottom: 2rem;">
+                <button onclick="toggleV2Data()" class="btn btn-secondary"
+                    style="border: 1px dashed #03dac6; color: #03dac6; width:auto; font-size: 0.8rem; padding: 0.5rem 1rem;">
+                    🤖 View Machine Contract (V2)
+                </button>
+            </div>
+
+            <div id="v2-contract-data"
+                style="display:none; margin-bottom: 2rem; border: 1px dashed #333; padding: 1rem; border-radius: 8px; position:relative;">
+                <div
+                    style="position:absolute; top:-10px; left:1rem; background:#1e1e1e; padding:0 0.5rem; color:#666; font-size:0.75rem;">
+                    MACHINE ONLY</div>
+
+                ${personaId || personaName || version ? `
+                <div class="card" style="border-left: 3px solid #03dac6;">
+                    <label class="card-label" style="color:#03dac6;">Phase 2 Profile Info</label>
+                    <div style="display:grid; grid-template-columns: auto 1fr; gap:0.5rem 1rem; font-size:0.9rem;">
+                        ${personaName ? `<span style="color:#888;">Persona Name:</span><span
+                            style="color:#fff; font-weight:500;">${personaName}</span>` : ''}
+                        ${personaId ? `<span style="color:#888;">Persona ID:</span><span
+                            style="color:#03dac6; font-family:monospace; font-size:0.8rem;">${personaId}</span>` : ''}
+                        ${version ? `<span style="color:#888;">Version:</span><span style="color:#fff;">Phase ${version}</span>`
+                            :
+                            ''}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${dimensionalScores ? `
+                <div class="card">
+                    <label class="card-label" style="color:#03dac6;">Dimensional Scores</label>
+                    <div style="margin-top:1rem;">
+                        ${Object.entries(dimensionalScores).map(([dim, score]) => {
+                                const percentage = (score * 100).toFixed(0);
+                                return `
+                        <div style="margin-bottom:1rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.9rem;">
+                                <span>${dim}</span>
+                                <span style="color:#03dac6; font-weight:600;">${percentage}%</span>
+                            </div>
+                            <div style="height:8px; background:#222; border-radius:4px; overflow:hidden;">
+                                <div
+                                    style="height:100%; width:${percentage}%; background:linear-gradient(90deg, #03dac6, #00a896); border-radius:4px; transition:width 0.5s ease-out;">
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                            }).join('')}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+
+            <div class="card">
+                <label class="card-label">System Prompt (Generated String)</label>
+                <div class="text-content"
+                    style="white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; background: #151515; padding: 1rem; border-radius: 4px; border: 1px solid #333; color: #aaa;">
+                    ${p.system_prompt || "No system prompt generated."}</div>
+            </div>
+
+            <div class="card">
+                <label class="card-label">Tone Voice</label>
+                <div class="text-content">
+                    <strong>${tone.primary || "N/A"}</strong>: ${tone.description || ""}
+                </div>
+            </div>
+            <div class="card">
+                <label class="card-label">Do's</label>
+                <ul style="padding-left:1.5rem; color:#ccc;">${dos.map(d => `<li>${d}</li>`).join('')}</ul>
+            </div>
+            <div class="card">
+                <label class="card-label">Don'ts</label>
+                <ul style="padding-left:1.5rem; color:#ccc;">${donts.map(d => `<li>${d}</li>`).join('')}</ul>
+            </div>
+            <div style="margin-top:2rem; border-top:1px solid #333; padding-top:1rem; text-align:center;">
+                <button onclick="showAgent1RawJSON()"
+                    style="background:#03dac6; color:#000; padding:0.75rem 1.5rem; border-radius:8px; border:none; cursor:pointer; font-size:0.9rem; font-weight:600; transition:all 0.2s;">📄
+                    View Raw JSON</button>
+            </div>
+        </div>
+
+        <div id="edit-mode" style="display:none;">
+            <div class="card">
+                <label class="card-label">Edit Tone</label>
+                <input class="editable-input" id="e-tone-p" value="${tone.primary || ''}">
+                <textarea class="editable-input" id="e-tone-d">${tone.description || ''}</textarea>
+            </div>
+            <div class="card">
+                <label class="card-label">Edit Do's (One per line)</label>
+                <textarea class="editable-input" id="e-dos" rows="5">${dos.join('\n')}</textarea>
+            </div>
+            <div class="card">
+                <label class="card-label">Edit Don'ts (One per line)</label>
+                <textarea class="editable-input" id="e-donts" rows="5">${donts.join('\n')}</textarea>
+            </div>
+        </div>
+
+        <!-- Feedback Prompt (shown when NOT locked) -->
+        <div class="feedback-prompt" id="controls-feedback"
+            style="text-align:center; padding:2rem 0; border-top:1px solid #333; margin-top:2rem;">
+            <p style="color:#888; margin-bottom:1rem; font-size:0.95rem;">Review the Brand Voice Profile. Approve to proceed to
+                Strategy.</p>
+            <div style="display:flex; gap:1rem; justify-content:center;">
+                <button class="btn btn-primary" style="background:#03dac6; color:#000;" onclick="approveAgent1()">✅ Approve &
+                    Continue</button>
+                <button class="btn btn-secondary" style="background:#cf6679; color:#fff; border:none;"
+                    onclick="rejectProfile()">❌ Regenerate</button>
+                <button class="btn btn-secondary" onclick="toggleEdit(true)">✏️ Edit</button>
+            </div>
+        </div>
+
+        <!-- Approved Badge (shown when approved) -->
+        <div id="controls-approved"
+            style="display:none; text-align:center; padding:2rem 0; border-top:1px solid #333; margin-top:2rem;">
+            <div
+                style="background:rgba(3,218,198,0.1); border:1px solid #03dac6; padding:1rem 2rem; border-radius:8px; display:inline-block;">
+                <span style="color:#03dac6; font-weight:600;">🔒 Profile Approved</span>
+            </div>
+        </div>
+
+        <div class="edit-controls" id="controls-edit" style="display:none;">
+            <button class="btn btn-primary" onclick="saveAgent1Edit()">💾 Update View</button>
+            <button class="btn btn-secondary" onclick="toggleEdit(false)">Cancel</button>
+        </div>
+        `;
+
+                console.log("[renderAgent1] HTML template built, checking lock status...");
+
+                // Check if profile is locked
+                const isLocked = p.stats?.locked || false;
+                const feedbackCtrl = document.getElementById('controls-feedback');
+                const lockedCtrl = document.getElementById('controls-locked');
+
+                if (isLocked) {
+                    if (feedbackCtrl) feedbackCtrl.style.display = 'none';
+                    if (lockedCtrl) lockedCtrl.style.display = 'block';
+                } else {
+                    if (feedbackCtrl) feedbackCtrl.style.display = 'block';
+                    if (lockedCtrl) lockedCtrl.style.display = 'none';
+                }
+
+                console.log("[renderAgent1] ✅ Render complete!");
+
+            } catch (e) {
+                console.error("[renderAgent1] ❌ ERROR:", e);
+                alert("Failed to render Agent 1 data: " + e.message);
+                const loader = document.getElementById('agent1-loading');
+                if (loader) {
+                    loader.innerHTML = `<span style="color:#cf6679">Render failed: ${e.message}</span>`;
+                }
+            }
+        }
+
+        // Initialize with data from backend (if provided via template rendering or auto-load)
+        function initSessionWithData(data) {
+            console.log("🔵 [DEBUG 1] initSessionWithData called with:", data);
+
+            // 🔒 HARD CANONICALIZATION — REQUIRED FOR REGEN
+            const canonicalProfileId =
+                data.profile_id ||
+                data.id ||
+                data.profile_data?.profile_id;
+
+            // CHECK FOR INGESTED_ONLY STATUS (Skip Strict Validation)
+            if (data.status === 'ingested_only') {
+                console.log("🚀 [initSessionWithData] 'ingested_only' status detected. Skipping profile validation.");
+
+                // Initialize basic session state
+                sessionState.brand_id = data.brand_id;
+                sessionState.brand_name = data.brand_id; // Placeholder
+
+                // Trigger Generation Immediately
+                console.log("🚀 [initSessionWithData] Triggering Agent 1 Generation...");
+                triggerAgent1();
+                return; // EXIT EARLY - Do not attempt to render Agent 1 yet
+            }
+
+            if (!canonicalProfileId) {
+                console.error("[initSessionWithData] ❌ Missing canonical profile_id", data);
+                // Alert the user visibly
+                alert("Critical Error: Agent 1 Data missing profile_id.\n\nKeys: " + Object.keys(data).join(', ') + "\n\nData: " + JSON.stringify(data, null, 2));
+                throw new Error("Agent1 profile_id missing");
+            }
+
+            // -------------------------------
+            // 🔑 CRITICAL FIX: STORE persona_id
+            // -------------------------------
+            const personaId =
+                data.persona_id ||
+                data.profile_data?.persona_id;
+
+            if (personaId) {
+                sessionState.persona_id = personaId;
+                console.log("✅ persona_id stored in sessionState:", personaId);
+            } else {
+                console.warn("⚠️ persona_id missing in Agent-1 response");
+            }
+
+
+            // 🔒 Normalize shape ONCE
+            // This replaces the raw 'data' usage below
+            data = {
+                ...data,
+                id: canonicalProfileId,
+                profile_id: canonicalProfileId
+            };
+
+            // ✅ ORCHESTRATION CONTRACT: Agent 1 OUTPUT → Agent 2 INPUT
+            // Update brand_id with the ACTUAL brand_id from Agent 1 response
+            // This is the SOURCE OF TRUTH - not the URL param
+            if (data.brand_id) {
+                sessionState.brand_id = data.brand_id;
+                console.log(`✅ [ORCHESTRATION] brand_id updated from Agent 1: ${data.brand_id}`);
+            }
+
+            // Store Agent 1 Data
+            sessionState.agent1_data = data;
+            sessionState.brand_name = data.brand_id || BRAND_ID; // Fallback
+            sessionState.session_id = data.session_id;
+            sessionState.persona_hash = data.persona_hash;
+
+            console.log("🔵 [DEBUG 2] Session state updated:", sessionState);
+
+            // Update Step Status
+            sessionState.steps.agent1.status = 'generated';
+
+            console.log("🔵 [DEBUG 3] About to call renderAgent1...");
+
+            // Render Agent 1
+            try {
+                renderAgent1(data);
+                console.log("✅ [DEBUG 4] renderAgent1 completed successfully");
+            } catch (e) {
+                console.error("❌ [DEBUG 4] renderAgent1 CRASHED:", e);
+                alert("CRITICAL ERROR in renderAgent1: " + e.message);
+            }
+
+            console.log("🔵 [DEBUG 5] About to call updateWorkflowUI...");
+            // Update UI State (Buttons etc)
+            updateWorkflowUI();
+            console.log("✅ [DEBUG 6] updateWorkflowUI completed");
+
+            // Auto-trigger Agent 2 after Agent 1 completes AND saves to database
+            // Increased delay to 2000ms to ensure Agent 1's database save completes
+            // This prevents Agent 2 from running before the voice profile exists in DB
+            console.log("🔵 [DEBUG 7] Auto-triggering Agent 2 in 2 seconds...");
+            setTimeout(() => {
+                console.log("🔵 [DEBUG 7.1] Agent 1 save should be complete. Triggering Agent 2 now...");
+                triggerAgent2();
+            }, 2000); // Wait 2 seconds for Agent 1 database save to complete
+        }
+
+        // Store response data for raw JSON viewing (Keeping legacy vars for compatibility)
+        let agent1ResponseData = null;
+        let agent2ResponseData = null;
+        let agent3ResponseData = null;
+
+        function switchTab(agent) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const tabBtn = document.querySelector(`.t-${agent}`);
+            const tabContent = document.getElementById(`tab-${agent}`);
+            if (tabBtn) tabBtn.classList.add('active');
+            if (tabContent) tabContent.classList.add('active');
+        }
+
+        window.addEventListener('load', async () => {
+            await loadAgent1();
+        });
+
+        // Enterprise Compliance: V2 must be hidden by default
+
+        async function loadAgent1() {
+            try {
+                // Trigger Agent 2 in parallel (Independent/Isolated)
+                // Wait... Agent 2 needs Agent 1 to finish for session creation?
+                // Actually Ingest creates session. Then we pass session_id to Agent 2.
+                // So Process: Ingest -> [SessionID] -> Agent 2.
+
+                // Fetch from Ingest (which now creates session)
+                // Existing call: fetch(`/ingest/profiles/brand/${BRAND_ID}`) 
+                // This GET endpoint fetches from DB! Violates ephemeral rule if we didn't save.
+                // WE MUST CHANGE THIS.
+                // The results page is loaded AFTER ingestion completes in index.html?
+                // Or does results.html expect to fetch from DB?
+                // If we changed ingestion to NOT save to DB, `GET /ingest/profiles...` will fail or return old data.
+
+                // FIX: results.html must receive session data directly or we must have a way to fetch session state.
+                // Current `initSessionWithData` handles data passed from template?
+                // If user redirects here, how do we get data?
+                // We should probably rely on `session_id` passed in URL if enabled, or localStorage.
+
+                // For this refactor, let's assume `initSessionWithData` is called with the ingestion result passed via 
+                // localStorage or a temporary State exchange.
+                // BUT, to keep it simple: We can create `GET /workflow/session/{id}` to fetch ephemeral state.
+
+                // Let's assume the user starts from Index -> Ingest -> Redirects to Results with `session_id`.
+                // So we check params for `session_id`.
+
+                // Check for parallel flow (triggered by index.html redirect with brand_id)
+                if (BRAND_ID) {
+                    // Initialize session state with brand_id
+                    sessionState.brand_id = BRAND_ID;
+                    sessionState.brand_name = BRAND_ID; // Placeholder until fetched
+
+                    if (TOPIC) sessionState.topic = TOPIC;
+
+                    // Parallel Execution Trigger
+                    // We check if we already have data (from sessionStorage or DB)
+                    // If NOT, we assume we need to triggering generation.
+
+                    const storedData = sessionStorage.getItem('agent1_data');
+                    if (storedData) {
+                        try {
+                            const data = JSON.parse(storedData);
+                            // If status is 'ingested_only', it means we skipped generation and need to trigger it now.
+                            if (data.status === 'ingested_only') {
+                                console.log("🚀 [PARALLEL] Staged Ingestion detected. Triggering Agent 1 & 2...");
+
+                                // Show loading states
+                                document.getElementById('agent1-loading').style.display = 'flex';
+                                document.getElementById('agent2-loading').style.display = 'flex';
+
+                                // Trigger Sequentially (Agent 2 needs Agent 1 profile)
+                                await triggerAgent1();
+                                triggerAgent2();
+
+                            } else {
+                                // Standard flow (data already fully generated?)
+                                console.log("RESUMING SESSION with existing data");
+                                initSessionWithData(data);
+                                triggerAgent2();
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse session data", e);
+                        }
+                    } else {
+                        // Brand ID present but no session data.
+                        // Could be a direct link or refresh.
+                        // If we assume parallel flow, we might try to trigger them?
+                        // But Agent 1 needs content. If content verified exists (via backend check), we could trigger.
+                        // For now, let's just try fetching profile (Legacy/Fallback)
+                        console.log("Legacy Mode: Fetching from DB for Brand ID", BRAND_ID);
+                        fetchProfileFromDB();
+                    }
+                }
+
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+
+        async function fetchProfileFromDB() {
+            const loader = document.getElementById('agent1-loading');
+            const container = document.getElementById('agent1-data');
+
+            try {
+                // Ensure loader is visible if not already
+                if (loader) loader.style.display = 'flex';
+                if (container) container.style.display = 'none';
+
+                console.log(`[fetchProfileFromDB] Fetching profile for brand ${sessionState.brand_id || BRAND_ID}...`);
+                const res = await fetch(`/ingest/profiles/brand/${sessionState.brand_id || BRAND_ID}`);
+
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(`Profile not found or API error (${res.status}): ${errText}`);
+                }
+
+                const data = await res.json();
+                console.log("[fetchProfileFromDB] Data received:", data);
+
+                // Render Agent 1 data
+                renderAgent1(data);
+                sessionState.agent1_data = data;
+                sessionState.steps.agent1.status = 'generated';
+
+                // Auto-approve existing profile (it was already generated/saved in DB)
+                sessionState.steps.agent1.approved = true;
+                console.log("[fetchProfileFromDB] ✅ Agent 1 auto-approved (existing brand)");
+
+                // Show approved badge, hide feedback controls
+                const feedbackEl = document.getElementById('controls-feedback');
+                const approvedEl = document.getElementById('controls-approved');
+                if (feedbackEl) feedbackEl.style.display = 'none';
+                if (approvedEl) approvedEl.style.display = 'block';
+
+                // Hide loader, show data
+                if (loader) loader.style.display = 'none';
+                if (container) container.style.display = 'block';
+
+                updateWorkflowUI();
+
+                updateWorkflowUI();
+
+                // Fetch Agent 2 and Agent 3 existing data from DB (SEQUENTIALLY)
+                // We await Agent 2 to filter Agent 3 content by the relevant brief.
+                const brief = await fetchExistingAgent2();
+
+                if (brief) {
+                    await fetchExistingAgent3(brief.id);
+                } else {
+                    console.log("[fetchProfileFromDB] Skipping Agent 3 fetch (No Agent 2 brief for this topic).");
+                }
+
+            } catch (e) {
+                console.error("[fetchProfileFromDB] Failed:", e);
+                if (loader) {
+                    // Show error in the loader area so user sees it
+                    loader.innerHTML = `
+                        <div style="text-align:center; color:#cf6679;">
+                            <p>❌ Failed to load profile.</p>
+                            <small>${e.message}</small>
+                            <br><br>
+                            <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Fetch existing Agent 2 briefs from DB for returning brands
+        async function fetchExistingAgent2() {
+            try {
+                const brandId = sessionState.brand_id || BRAND_ID;
+                const currentTopic = (typeof TOPIC !== 'undefined' && TOPIC ? TOPIC : "").trim();
+
+                console.log(`[fetchExistingAgent2] Fetching briefs for brand=${brandId}, topic="${currentTopic}"`);
+
+                // Backend-enforced filtering (Safe Fix)
+                let url = `/ideation/briefs/${brandId}`;
+                if (currentTopic) {
+                    url += `?topic=${encodeURIComponent(currentTopic)}`;
+                }
+
+                const res = await fetch(url);
+
+                if (!res.ok) {
+                    console.warn("[fetchExistingAgent2] API error");
+                    return null;
+                }
+
+                const data = await res.json();
+                console.log("[fetchExistingAgent2] Briefs received:", data);
+
+                if (!data.briefs || data.briefs.length === 0) {
+                    console.log(`[fetchExistingAgent2] No briefs found for topic "${currentTopic}". Starting fresh.`);
+                    return null;
+                }
+
+                // If topic filtering was applied, any result is a match.
+                // If no topic (e.g. general load), use most recent (returned first/last depending on sort).
+                // API sorts by created_at DESC (newest first).
+                let matchingBrief = data.briefs[0];
+
+                // Parse JSON if needed
+                if (typeof matchingBrief.content_brief_data === 'string') {
+                    try {
+                        matchingBrief.content_brief_data = JSON.parse(matchingBrief.content_brief_data);
+                    } catch (e) {
+                        console.error("[fetchExistingAgent2] JSON parse error:", e);
+                    }
+                }
+
+                // Hydrate session state and render
+                sessionState.agent2_data = matchingBrief;
+                sessionState.steps.agent2.status = 'generated';
+
+                const container = document.getElementById('agent2-data');
+                const loader = document.getElementById('agent2-loading');
+                if (loader) loader.style.display = 'none';
+
+                renderAgent2(matchingBrief);
+                addAgent2RegenButton(container);
+                if (container) container.style.display = 'block';
+
+                console.log("[fetchExistingAgent2] ✅ Agent 2 data loaded from DB");
+                updateWorkflowUI();
+
+                return matchingBrief; // Return for chaining
+
+            } catch (e) {
+                console.error("[fetchExistingAgent2] Failed:", e);
+                return null;
+            }
+        }
+
+
+
+        // Fetch existing Agent 3 generated content from DB for returning brands
+        async function fetchExistingAgent3(briefId = null) {
+            try {
+                console.log(`[fetchExistingAgent3] Fetching generated content from DB (Limit by Brief: ${briefId})...`);
+                const brandId = sessionState.brand_id || BRAND_ID;
+                const query = briefId ? `?brief_id=${briefId}` : '';
+                const res = await fetch(`/execute/content/${brandId}${query}`);
+
+                if (!res.ok) {
+                    console.warn("[fetchExistingAgent3] No generated content found or API error");
+                    return;
+                }
+
+                const data = await res.json();
+                console.log("[fetchExistingAgent3] Generated content received:", data);
+
+                if (!data || !data.output) {
+                    console.log("[fetchExistingAgent3] No existing content found");
+                    return;
+                }
+
+                // Hydrate session state
+                sessionState.agent3_data = data;
+                sessionState.steps.agent3.status = 'generated';
+
+                // Render the content
+                const config = document.getElementById('agent3-start');
+                const container = document.getElementById('agent3-data');
+                const loader = document.getElementById('agent3-loading');
+
+                if (config) config.style.display = 'none';
+                if (loader) loader.style.display = 'none';
+                if (container) {
+                    container.innerHTML = ''; // Clear any previous content
+                    container.style.display = 'block';
+                }
+
+                // Render using existing appendResultCard
+                const title = data.execution_version === 'v2' ? 'Generated Content (V2)' : 'Generated Content';
+                appendResultCard(title, data.output);
+
+                // Show regenerate option below the result
+                if (container) {
+                    container.innerHTML += `
+                        <div style="text-align:center; margin-top:1rem;">
+                            <button class="btn btn-secondary" onclick="showAgent3Config()" style="max-width:250px;">
+                                🔄 Generate New Content
+                            </button>
+                        </div>
+                    `;
+                }
+
+                console.log("[fetchExistingAgent3] ✅ Agent 3 data loaded from DB");
+                updateWorkflowUI();
+
+            } catch (e) {
+                console.error("[fetchExistingAgent3] Failed:", e);
+            }
+        }
+
+        // Helper: show Agent 3 config panel for re-generation
+        function showAgent3Config() {
+            const config = document.getElementById('agent3-start');
+            const container = document.getElementById('agent3-data');
+            if (config) config.style.display = 'block';
+            if (container) {
+                container.innerHTML = '';
+                container.style.display = 'none';
+            }
+        }
+
+        // --- NEW: Agent 1 Trigger for Parallel Execution ---
+        async function triggerAgent1() {
+            try {
+                console.log("🚀 Triggering Agent 1 (Voice Profile)...");
+                const loader = document.getElementById('agent1-loading');
+                if (loader) loader.style.display = 'flex';
+
+                const res = await fetch(`/ingest/generate/${BRAND_ID}`, { method: 'POST' });
+
+                if (!res.ok) {
+                    throw new Error(await res.text());
+                }
+
+                const data = await res.json();
+                // 🔑 Required for Agent-3 V2
+                if (data.persona_id) {
+                    sessionState.persona_id = data.persona_id;
+                }
+
+                console.log("✅ Agent 1 Complete", data);
+
+                // ✅ ORCHESTRATION CONTRACT: Agent 1 OUTPUT → Agent 2 INPUT
+                if (data.brand_id) {
+                    sessionState.brand_id = data.brand_id;
+                    console.log(`✅ [ORCHESTRATION] brand_id updated from Agent 1: ${data.brand_id}`);
+                }
+
+                renderAgent1(data);
+
+                // Update State
+                sessionState.agent1_data = data;
+                sessionState.steps.agent1.status = 'generated';
+                sessionState.steps.agent1.approved = true; // Auto-approve for now
+                updateWorkflowUI();
+
+            } catch (e) {
+                console.error("Agent 1 Failed", e);
+                const loader = document.getElementById('agent1-loading');
+                if (loader) loader.innerHTML = `<span style="color:red">Agent 1 Failed: ${e.message}</span>`;
+            }
+        }
+
+
+        // saveAllResponses function moved below (complete implementation)
+
+        async function saveAllResponses() {
+            // Get Profile ID (try various paths)
+            const pData = sessionState.agent1_data;
+            let profileId = pData.profile_id || (pData.profile_data && pData.profile_data.profile_id);
+
+            // If Agent 1 is still in "ingested_only" state (parallel run failed?), alert
+            if (pData.status === 'ingested_only' && !profileId) {
+                alert("Agent 1 Generation Incomplete. Cannot save.");
+                return;
+            }
+
+            try {
+                // 1. APPROVE Agent 1 (Persist Profile Status)
+                if (profileId) {
+                    const res = await fetch(`/ingest/approve/${profileId}`, { method: 'POST' });
+                    if (!res.ok) throw new Error("Failed to approve voice profile");
+                    console.log("[SAVE] Profile Approved:", profileId);
+                } else {
+                    console.warn("[SAVE] No Profile ID found? Agent 1 might need manual trigger.");
+                }
+
+                // 2. SAVE Agent 2 (Deferred Persistence)
+                // Since Agent 2 ran in parallel with skip_saving, we must save now
+                if (sessionState.agent2_data && sessionState.agent2_data.content_brief) {
+                    console.log("[SAVE] Persisting Agent 2 Brief...");
+                    const a2Data = sessionState.agent2_data;
+
+                    // Construct payload that satisfies IdeationResponse schema AND additional Body params
+                    const payload = {
+                        // Base IdeationResponse fields
+                        brief_id: a2Data.brief_id,
+                        content_brief: a2Data.content_brief,
+                        constraints: {
+                            voice_profile_id: profileId, // Update with real ID
+                            must_follow_voice: true
+                        },
+
+                        // Additional params required by endpoint
+                        brand_id: BRAND_ID,
+                        voice_profile_id: profileId,
+                        topic: a2Data.topic || TOPIC
+                    };
+
+                    const saveRes = await fetch('/ideation/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!saveRes.ok) {
+                        const errorText = await saveRes.text();
+                        console.error("Failed to save Content Brief", errorText);
+                        alert("Failed to save Content Brief: " + errorText);
+                    } else {
+                        console.log("[SAVE] Agent 2 Brief Saved.");
+                    }
+                }
+
+                // 3. SAVE Agent 3 (Deferred Persistence)
+                if (sessionState.agent3_data) {
+                    console.log("[SAVE] Persisting Agent 3 Content...");
+                    const a3Data = sessionState.agent3_data;
+                    const a2Data = sessionState.agent2_data || {};
+
+                    const payload = {
+                        brand_id: BRAND_ID,
+                        voice_profile_id: profileId,
+                        content_brief_id: a2Data.brief_id,
+                        output_data: a3Data.output || a3Data, // Handle unwrapped or wrapped
+                        metadata: {
+                            execution_mode: document.getElementById('execution-mode')?.value || 'standard',
+                            platforms: Object.keys(a3Data.output || a3Data).filter(k => k !== 'raw_json')
+                        }
+                    };
+
+                    const saveRes3 = await fetch('/execute/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!saveRes3.ok) {
+                        const errorText = await saveRes3.text();
+                        console.error("Failed to save Agent 3 content", errorText);
+                        alert("Note: Agent 3 content failed to save: " + errorText);
+                    } else {
+                        console.log("[SAVE] Agent 3 Content Saved.");
+                    }
+                }
+
+                showToast("🎉 All content saved to database!");
+
+                // Redirect or update UI?
+                document.getElementById('save-all-section').style.display = 'none';
+
+            } catch (e) {
+                console.error(e);
+                alert("Save Failed: " + e.message);
+            }
+        }
+
+        // Hiding V2 Logic (continued)
+        function updateWorkflowUI() {
+            console.log("[updateWorkflowUI] Called. Session state:", sessionState);
+
+            // Agent 1 UI is handled by renderAgent1
+
+            // Agent 2 Tab State
+            // Always active now since it runs in parallel
+            const tab2 = document.querySelector(`.t-agent2`);
+            if (tab2) {
+                tab2.style.opacity = '1';
+                tab2.style.pointerEvents = 'auto';
+                tab2.innerText = sessionState.steps.agent2.status === 'generated' ? '✅ 2. Strategy' : '2. Strategy';
+            }
+
+            // Agent 3 Tab State
+            // Unlocks ONLY if Agent 1 is Approved AND Agent 2 is Generated
+            const tab3 = document.querySelector(`.t-agent3`);
+            const agent3Button = document.getElementById('btn-start-agent3');
+
+            const hasExistingAgent3 = sessionState.steps.agent3.status === 'generated';
+            const canStartAgent3 = hasExistingAgent3 || (sessionState.steps.agent1.approved && sessionState.steps.agent2.status === 'generated');
+
+            console.log("[updateWorkflowUI] Agent 3 unlock check:", {
+                agent1Approved: sessionState.steps.agent1.approved,
+                agent2Status: sessionState.steps.agent2.status,
+                canStartAgent3: canStartAgent3
+            });
+
+            // Check if element exists before modifying
+            if (tab3) {
+                if (canStartAgent3) {
+                    tab3.style.opacity = '1';
+                    tab3.style.pointerEvents = 'auto';
+                    tab3.innerText = sessionState.steps.agent3.status === 'generated' ? '✅ 3. Execution' : '3. Execution';
+                    console.log("[updateWorkflowUI] ✅ Agent 3 tab UNLOCKED");
+                } else {
+                    tab3.style.opacity = '0.5';
+                    tab3.style.pointerEvents = 'none';
+                    tab3.innerText = '🔒 3. Execution';
+                    console.log("[updateWorkflowUI] 🔒 Agent 3 tab LOCKED");
+                }
+            }
+
+            // Also control the button state
+            if (agent3Button) {
+                if (canStartAgent3) {
+                    agent3Button.disabled = false;
+                    agent3Button.style.cursor = 'pointer';
+                    agent3Button.style.opacity = '1';
+                    console.log("[updateWorkflowUI] ✅ Agent 3 button ENABLED");
+
+                    // Show toast notification if Agent 3 just became available
+                    if (sessionState.steps.agent3.status !== 'generated') {
+                        showToast("✅ Agent 3 Unlocked! Click '3. Execution' tab to generate content.");
+                    }
+                } else {
+                    agent3Button.disabled = true;
+                    agent3Button.style.cursor = 'not-allowed';
+                    agent3Button.style.opacity = '0.5';
+                    console.log("[updateWorkflowUI] 🔒 Agent 3 button DISABLED");
+                }
+            }
+        }
+
+        function approveAgent1() {
+            sessionState.steps.agent1.approved = true;
+
+            // Lock Agent 1 UI
+            const feedbackEl = document.getElementById('controls-feedback');
+            const approvedEl = document.getElementById('controls-approved');
+            if (feedbackEl) feedbackEl.style.display = 'none';
+            if (approvedEl) approvedEl.style.display = 'block';
+
+            // Show toast
+            showToast("✅ Voice Profile Approved!");
+
+            // Check if we can unlock Agent 3
+            updateWorkflowUI();
+
+            // If Agent 2 is also done, maybe notify user?
+            if (sessionState.steps.agent2.status === 'generated') {
+                showToast("✅ Agent 3 Unlocked! Ready to Execute.");
+            }
+        }
+
+        async function triggerAgent2(forceRegeneration = false) {
+            const container = document.getElementById('agent2-data');
+            const loader = document.getElementById('agent2-loading');
+
+            // Null guards
+            if (!container || !loader) {
+                console.error("[triggerAgent2] Missing DOM elements");
+                return;
+            }
+
+            // ✅ ORCHESTRATION CONTRACT: Strict validation before Agent 2
+            if (!sessionState.brand_id) {
+                const errMsg = "ANTI_GRAVITY: brand_id missing from Agent 1. Cannot proceed to Agent 2.";
+                console.error(`❌ [ORCHESTRATION] ${errMsg}`);
+                loader.innerHTML = `<span style="color:#cf6679">${errMsg}</span>`;
+                return;
+            }
+
+            // Ensure UI shows loading
+            container.style.display = 'none';
+            loader.style.display = 'block';
+
+            try {
+                // --- FIX: Fetch before Generate (ARD Compliance) ---
+                if (!forceRegeneration) {
+                    console.log("[triggerAgent2] Checking for existing briefs first...");
+                    try {
+                        const checkRes = await fetch(`/ideation/briefs/${sessionState.brand_id}`);
+                        console.log("[triggerAgent2] Fetch status:", checkRes.status);
+
+                        if (checkRes.ok) {
+                            const checkData = await checkRes.json();
+                            // normalize topic for comparison
+                            const currentTopic = (typeof TOPIC !== 'undefined' ? TOPIC : "").trim().toLowerCase();
+                            console.log("[triggerAgent2] Current Topic:", currentTopic);
+
+                            const existingBrief = (checkData.briefs || []).find(b => {
+                                const bTopic = (b.topic || "").trim().toLowerCase();
+                                // Also check inside nested brief payload if topic is missing at top level
+                                const nestedTopic = (b.content_brief_data?.topic || b.content_brief?.topic || "").trim().toLowerCase();
+                                return bTopic === currentTopic || nestedTopic === currentTopic;
+                            });
+
+                            if (existingBrief) {
+                                console.log("✅ [triggerAgent2] Found existing brief! Reusing...", existingBrief);
+                                showToast("✅ Reusing existing strategy...");
+
+                                // Hydrate session state directly
+                                sessionState.agent2_data = existingBrief;
+                                sessionState.steps.agent2.status = 'generated';
+
+                                // Parse JSON if needed
+                                try {
+                                    if (typeof sessionState.agent2_data.content_brief_data === 'string') {
+                                        sessionState.agent2_data.content_brief_data = JSON.parse(sessionState.agent2_data.content_brief_data);
+                                    }
+                                } catch (parseErr) {
+                                    console.error("JSON Parse Error (ignoring):", parseErr);
+                                }
+
+                                try {
+                                    renderAgent2(sessionState.agent2_data);
+                                } catch (renderErr) {
+                                    console.error("Render Error:", renderErr);
+                                    container.innerHTML = `<div style="color:red; padding:1rem;">Error rendering brief: ${renderErr.message}</div>`;
+                                }
+
+                                // Ensure regenerate button is added
+                                addAgent2RegenButton(container);
+
+                                // FINAL STATE UPDATE
+                                loader.style.display = 'none';
+                                container.style.display = 'block';
+                                updateWorkflowUI();
+
+                                return; // EXIT EARLY - DO NOT GENERATE
+                            } else {
+                                console.log("[triggerAgent2] No matching brief found for topic.");
+                            }
+                        }
+                    } catch (fetchErr) {
+                        console.warn("[triggerAgent2] Fetch existing failed (ignoring):", fetchErr);
+                    }
+                }
+
+                // --- End Fix ---
+
+                // Step 1: Call Agent 2 with save_to_db=TRUE (immediately save to database)
+                const requestBody = {
+                    brand_id: sessionState.brand_id,
+                    topic: TOPIC
+                };
+
+                // ✅ ORCHESTRATION INVARIANT: Log the brand_id being passed
+                console.log(`✅ [ORCHESTRATION] Agent 2 receiving brand_id from Agent 1: ${sessionState.brand_id}`);
+                console.log(`[triggerAgent2] Full request body:`, requestBody);
+
+                // Add session_id if available
+                if (sessionState.session_id) {
+                    requestBody.session_id = sessionState.session_id;
+                }
+
+                console.log("[triggerAgent2] Generating and saving to database...", requestBody);
+
+                const regenParam = forceRegeneration ? '&regenerate=true' : '';
+                const res = await fetch(`/ideation/ideate?save_to_db=true${regenParam}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(`Agent 2 failed: ${errorText}`);
+                }
+
+                const apiData = await res.json();
+                console.log("[triggerAgent2] Agent 2 response:", apiData);
+
+                // Step 2: Fetch from database to confirm save and get complete data
+                // This ensures we display what's actually in the database
+                console.log("[triggerAgent2] Fetching saved brief from database...");
+                const fetchRes = await fetch(`/ideation/briefs/${sessionState.brand_id}`);
+
+                if (!fetchRes.ok) {
+                    console.warn("[triggerAgent2] Could not fetch from database, using API response");
+                    // Fallback to API response if database fetch fails
+                    sessionState.agent2_data = apiData;
+                    sessionState.steps.agent2.status = 'generated';
+                    renderAgent2(apiData);
+                } else {
+                    const dbData = await fetchRes.json();
+                    console.log("[triggerAgent2] Fetched from database:", dbData);
+
+                    // Use the most recent brief from database
+                    if (dbData.briefs && dbData.briefs.length > 0) {
+                        const latestBrief = dbData.briefs[dbData.briefs.length - 1];
+                        sessionState.agent2_data = latestBrief;
+                        sessionState.steps.agent2.status = 'generated';
+                        renderAgent2(latestBrief);
+                        console.log("[triggerAgent2] ✅ Displaying data from DATABASE");
+                    } else {
+                        // No briefs in database, fallback to API response
+                        sessionState.agent2_data = apiData;
+                        sessionState.steps.agent2.status = 'generated';
+                        renderAgent2(apiData);
+                        console.log("[triggerAgent2] ⚠️ No briefs in DB, using API response");
+                    }
+                }
+
+                // Add Regenerate Button
+                const regenDiv = document.createElement('div');
+                regenDiv.style.textAlign = 'center';
+                regenDiv.style.marginTop = '2rem';
+                regenDiv.style.paddingTop = '1rem';
+                regenDiv.style.borderTop = '1px solid #333';
+                regenDiv.innerHTML = `
+<button class="btn btn-secondary" onclick="triggerAgent2()" style="max-width:200px;">
+    🔄 Regenerate Strategy
+</button>
+`;
+                const agent2Container = document.getElementById('agent2-data');
+                if (agent2Container) {
+                    agent2Container.appendChild(regenDiv);
+                }
+
+                updateWorkflowUI();
+
+            } catch (e) {
+                console.error("[triggerAgent2] Error:", e);
+                if (loader) {
+                    loader.innerHTML = `<span style="color:#cf6679">Generation Failed: ${e.message}</span>`;
+                }
+                // Add retry button
+                const retryDiv = document.createElement('div');
+                retryDiv.style.textAlign = 'center';
+                retryDiv.style.marginTop = '1rem';
+                retryDiv.innerHTML = `<button class="btn btn-secondary" onclick="triggerAgent2()">Retry</button>`;
+                if (loader) {
+                    loader.appendChild(retryDiv);
+                }
+            }
+        }
+
+        // Helper to add regeneration button (used by both new generation and reuse paths)
+        function addAgent2RegenButton(container) {
+            // Remove existing if any
+            const existingBtn = document.getElementById('regen-btn-agent2');
+            if (existingBtn) existingBtn.remove();
+
+            const regenDiv = document.createElement('div');
+            regenDiv.id = 'regen-btn-agent2';
+            regenDiv.style.textAlign = 'center';
+            regenDiv.style.marginTop = '2rem';
+            regenDiv.style.paddingTop = '1rem';
+            regenDiv.style.borderTop = '1px solid #333';
+            regenDiv.innerHTML = `
+                <button class="btn btn-secondary" onclick="forceRegenerateAgent2()" style="max-width:200px;">
+                    🔄 Regenerate Strategy
+                </button>
+            `;
+            container.appendChild(regenDiv);
+        }
+
+        async function forceRegenerateAgent2() {
+            if (!confirm("Are you sure you want to regenerate the strategy? This will overwrite existing work.")) return;
+
+            // Clear current data to bypass the check
+            sessionState.agent2_data = null;
+
+            // Call generation directly (bypassing the check in triggerAgent2 is tricky if we don't change logic, 
+            // but for now, we can just call the generation endpoint manually or add a flag to triggerAgent2)
+            // Simpler: Just clear the brief from the 'checks' by maybe adding a timestamp? 
+            // Actually, triggerAgent2() will find the *same* brief again if we don't filter it out.
+            // Correct approach: triggerAgent2(force=true) or similar.
+
+            // For now, let's implement a simple force flag in triggerAgent2
+            triggerAgent2(true);
+        }
+
+        // Helper: Check if Agent 2 content brief is complete
+        function isAgent2Complete() {
+            const data = sessionState.agent2_data;
+            if (!data) return false;
+
+            // Robust check for different data shapes (API vs DB vs V2)
+            const brief = data.content_brief || data.content_brief_data || data;
+            const ui = brief.ui_presentation || {};
+            const targetAudience = ui.target_audience || brief.target_audience;
+            const takeaways = ui.key_takeaways || brief.key_takeaways || [];
+
+            return Boolean(
+                brief &&
+                targetAudience &&
+                takeaways.length > 0
+            );
+        }
+
+        // --- NEW: V2 Frontend Logic ---
+
+        let availablePersonas = [];
+
+        async function fetchPersonas() {
+            const listEl = document.getElementById('persona-list');
+            listEl.innerHTML = '<div style="color:#888;">Fetching personas...</div>';
+
+            // Use sessionState.brand_id as authoritative source, fallback to URL param
+            const targetBrandId = sessionState.brand_id || BRAND_ID;
+            console.log(`[fetchPersonas] 🚀 Fetching for Brand ID: ${targetBrandId}`);
+
+            if (!targetBrandId) {
+                console.error("[fetchPersonas] ❌ No Brand ID availble.");
+                listEl.innerHTML = '<div style="color:#cf6679;">Error: Missing Brand ID.</div>';
+                return;
+            }
+
+            try {
+                // Fetch from backend
+                const url = `/voice/${targetBrandId}/personas`;
+                console.log(`[fetchPersonas] Requesting: ${url}`);
+
+                const res = await fetch(url);
+                console.log(`[fetchPersonas] Response Status: ${res.status}`);
+
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(`Failed to fetch: ${res.status} ${errText}`);
+                }
+
+                const data = await res.json();
+                console.log("[fetchPersonas] 📦 Backend Response:", data);
+
+                // Validate data structure
+                if (!data.personas || !Array.isArray(data.personas)) {
+                    console.warn("[fetchPersonas] 'personas' key missing or not array:", data);
+                    availablePersonas = [];
+                } else {
+                    availablePersonas = data.personas;
+                }
+
+                console.log(`[fetchPersonas] Parsed ${availablePersonas.length} personas.`);
+
+                // Filter out non-active if necessary (though backend should handle this)
+                // START USER REQUESTED CHECK: "Frontend must NOT filter personas by..."
+                // We only filter by status if explicit, otherwise show all active.
+                console.log("Fetched personas:", availablePersonas);
+
+                // Filter out non-active if necessary (though backend should handle this)
+                // START USER REQUESTED CHECK: "Frontend must NOT filter personas by..."
+                // We only filter by status if explicit, otherwise show all active.
+                // FIX: Backend 'list_personas' doesn't currently return 'status' field.
+                // We assume returned personas are ACTIVE per "FACTS" if status is missing.
+                availablePersonas = availablePersonas.filter(p => !p.status || p.status === 'ACTIVE' || p.status === 'active');
+                console.log(`[fetchPersonas] Active Personas: ${availablePersonas.length}`);
+
+                if (availablePersonas.length === 0) {
+                    console.warn("[fetchPersonas] 0 Personas found.");
+                    listEl.innerHTML = '<div style="color:#cf6679;">No personas found. Run Agent 1 V2 first.</div>';
+                    return;
+                }
+
+                // Deduplicate by name (keep latest created/fetched)
+                // Since array is usually ordered by CreatedAt ASC, taking the last occurrence is safest.
+                const uniqueMap = new Map();
+                availablePersonas.forEach(p => uniqueMap.set(p.persona_name, p));
+                availablePersonas = Array.from(uniqueMap.values());
+
+                console.log(`[fetchPersonas] Unique Personas: ${availablePersonas.length}`);
+
+                // Render Checkboxes
+                listEl.innerHTML = availablePersonas.map(p => `
+                    <label style="display:flex; align-items:center; gap:0.5rem; background:#222; padding:0.5rem 0.8rem; border-radius:4px; border:1px solid #333; cursor:pointer; color:#ccc; font-size:0.9rem;">
+                        <input type="checkbox" name="selected_persona" value="${p.persona_id}" data-name="${p.persona_name}">
+                        ${p.persona_name}
+                    </label>
+                `).join('');
+                console.log("[fetchPersonas] ✅ Rendered list.");
+
+            } catch (e) {
+                console.error("[fetchPersonas] ❌ Error:", e);
+                listEl.innerHTML = `<div style="color:#cf6679;">Error loading personas: ${e.message}</div>`;
+            }
+        }
+
+        function togglePersonaSelector() {
+            const mode = document.getElementById('execution-mode').value;
+            const container = document.getElementById('persona-selector-container');
+            const btn = document.getElementById('btn-start-agent3');
+
+            if (mode === 'multi') {
+                container.style.display = 'block';
+                btn.innerText = "🚀 Generate Multi-Persona Content";
+                if (availablePersonas.length === 0) {
+                    fetchPersonas();
+                }
+            } else {
+                container.style.display = 'none';
+                btn.innerText = "🚀 Generate Content";
+            }
+        }
+
+        async function triggerAgent3() {
+            const mode = document.getElementById('execution-mode').value;
+            const config = document.getElementById('agent3-start');
+            const loader = document.getElementById('agent3-loading');
+            const container = document.getElementById('agent3-data');
+
+            // Strict gate check
+            if (!isAgent2Complete()) {
+                showToast("❌ Agent 2 content brief is incomplete. Please regenerate the content strategy.");
+                return;
+            }
+
+            // Prepare Payload
+            // Base Payload
+            let payload = {
+                brand_id: sessionState.brand_id, // Authoritative Source
+                platforms: ["blog", "linkedin", "twitter", "email"],
+                execution_version: "v2",
+                execution_mode: "single" // Standard
+            };
+
+            // Track target names for UI rendering
+            let targetMap = {};
+
+            if (mode === 'multi') {
+                const checkboxes = document.querySelectorAll('input[name="selected_persona"]:checked');
+                if (checkboxes.length === 0) {
+                    showToast("⚠️ Select at least one persona.");
+                    return;
+                }
+
+                // Collect IDs (Rule 4: Multi-Persona Payload)
+                const ids = [];
+                checkboxes.forEach(cb => {
+                    ids.push(cb.value);
+                    targetMap[cb.value] = cb.getAttribute('data-name');
+                });
+
+                payload.persona_ids = ids; // Send Array
+                delete payload.persona_id; // Ensure singular is removed (Rule 4)
+
+            } else {
+                // Single Mode: Use session ID or Fallback
+                if (sessionState.persona_id) {
+                    payload.persona_id = sessionState.persona_id;
+                    targetMap[sessionState.persona_id] = "Single Version (V2)";
+                } else {
+                    console.warn("⚠️ persona_id missing in session. Falling back to V1.");
+                    payload.execution_version = "v1";
+                    delete payload.persona_id; // Explicitly remove if using V1 fallback
+                    targetMap["legacy"] = "Single Version (Legacy)";
+                }
+            }
+
+            // UI Updates
+            config.style.display = 'none';
+            container.style.display = 'block';
+            container.innerHTML = '';
+            loader.style.display = 'flex';
+
+            if (mode === 'multi') {
+                loader.querySelector('span').innerText = `Generating content for ${Object.keys(targetMap).length} personas...`;
+            } else {
+                loader.querySelector('span').innerText = `Generating content...`;
+            }
+
+            try {
+                console.log("[triggerAgent3] 🚀 Sending Payload:", payload);
+
+                // Check if this is a regeneration (content already exists)
+                const isRegeneration = sessionState.steps.agent3.status === 'generated';
+                const regenParam = isRegeneration ? '&regenerate=true' : '';
+                if (isRegeneration) console.log("[triggerAgent3] 🔄 Regeneration mode active");
+
+                const res = await fetch(`/execute?save_to_db=false${regenParam}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) throw new Error(await res.text());
+
+                const data = await res.json();
+                console.log("[triggerAgent3] 📦 Response:", data);
+
+                // Handle Response Rendering
+                // If Multi-Persona (persona_ids sent), backend typically returns map/list.
+                // If Single (persona_id sent), backend returns simple object.
+
+                if (mode === 'multi') {
+                    // Start Hypothesis: Backend returns dictionary { "persona_id": { results... } } 
+                    // or list [ { "persona_id": "...", "output": ... } ]
+                    // or maybe just a flat list?
+
+                    let resultsProcessed = 0;
+
+                    if (Array.isArray(data)) {
+                        // Handle Array Response
+                        data.forEach(item => {
+                            const pId = item.persona_id || item.id; // Best guess ID extraction
+                            const pName = targetMap[pId] || "Unknown Persona";
+                            appendResultCard(pName, item);
+                            resultsProcessed++;
+                        });
+                    } else if (typeof data === 'object' && data !== null) {
+                        // Handle Dict Response or Single Object (if backend ignored multi)
+
+                        // Check if response keys look like UUIDs (persona_ids)
+                        const keys = Object.keys(data);
+                        const likelyMap = keys.some(k => targetMap[k]); // Check if any key matches a requested ID
+
+                        if (likelyMap) {
+                            keys.forEach(key => {
+                                if (targetMap[key]) {
+                                    appendResultCard(targetMap[key], data[key]);
+                                    resultsProcessed++;
+                                }
+                            });
+                        } else {
+                            // Fallback: Treat as single result (maybe backend executed standard)
+                            // Or merged result?
+                            // We will render as "Combined / Primary" result
+                            console.warn("Multi-persona request returned single object structure.");
+                            const firstName = Object.values(targetMap)[0]; // Just pick first name?
+                            appendResultCard(`${firstName} (and others)`, data);
+                            resultsProcessed = 1;
+                        }
+                    }
+
+                    if (resultsProcessed === 0) {
+                        container.innerHTML += `<div style="color:#cf6679; padding:1rem;">Generated, but response format not recognized. Check console.</div>`;
+                    }
+
+                } else {
+                    // Single Mode
+                    const title = Object.values(targetMap)[0] || "Result";
+                    appendResultCard(title, data);
+                }
+
+                loader.style.display = 'none';
+                sessionState.steps.agent3.status = 'generated';
+
+                // Show Save All
+                const saveSec = document.getElementById('save-all-section');
+                if (saveSec) {
+                    saveSec.style.display = 'block';
+                    saveSec.scrollIntoView({ behavior: 'smooth' });
+                }
+
+            } catch (e) {
+                console.error("[triggerAgent3] ❌ Failed:", e);
+                loader.style.display = 'none';
+                container.innerHTML += `<div style="color:#cf6679; text-align:center; padding:1rem;">Generation Failed: ${e.message}</div>`;
+
+                // Re-show config
+                // config.style.display = 'block'; // Optional: let them retry
+            }
+        }
+
+        // Helper to append results
+        function appendResultCard(title, data) {
+            const container = document.getElementById('agent3-data');
+            const outputs = data.output || data;
+
+            // Build Tabs Logic Unique ID
+            const uniqueId = `res-${Math.random().toString(36).substr(2, 9)}`;
+
+            // Similar validation to renderAgent3 but scoped
+            const platforms = ["blog", "linkedin", "twitter", "email"]; // Order preferences
+
+            let html = `
+            <div class="card" style="border-left: 4px solid #bb86fc; margin-bottom: 2rem;">
+                <h3 style="color:#bb86fc; margin-bottom:1rem; border-bottom:1px solid #333; padding-bottom:0.5rem;">${title}</h3>
+                
+                <div class="a3-tabs" id="tabs-${uniqueId}">
+                    ${platforms.map((p, idx) => `
+                        <button class="a3-tab ${idx === 0 ? 'active' : ''}" onclick="switchScopedTab('${uniqueId}', '${p}')">${p.toUpperCase()}</button>
+                    `).join('')}
+                </div>
+
+                ${platforms.map((p, idx) => {
+                let contentObj = outputs[p] || "No content";
+                let displayText = "";
+                if (p === 'blog' && contentObj.content) {
+                    displayText = "# " + (contentObj.title || 'Untitled') + "\n\n" + contentObj.content;
+                } else if (p === 'linkedin') {
+                    displayText = contentObj.post || contentObj;
+                } else if (p === 'twitter') {
+                    const thread = contentObj.thread || contentObj;
+                    displayText = Array.isArray(thread) ? thread.join('\n\n---\n\n') : JSON.stringify(thread);
+                } else if (p === 'email') {
+                    displayText = "Subject: " + (contentObj.subject || 'No Subject') + "\n\n" + (contentObj.body || '');
+                } else {
+                    displayText = typeof contentObj === 'string' ? contentObj : JSON.stringify(contentObj, null, 2);
+                }
+
+                return `
+                        <div id="${uniqueId}-${p}" class="tab-pane-scoped" style="display:${idx === 0 ? 'block' : 'none'};">
+                            <div class="a3-content-box">
+                                <div class="scroll-text">${displayText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div> <!-- Basic XSS prevention -->
+                            </div>
+                    </div>
+                `;
+            }).join('')}
+            </div>
+            `;
+
+            container.innerHTML += html;
+        }
+
+        function appendErrorCard(title, error) {
+            const container = document.getElementById('agent3-data');
+            container.innerHTML += `
+            <div class="card" style="border-left: 4px solid #cf6679; margin-bottom: 2rem;">
+                 <h3 style="color:#cf6679;">${title} (Failed)</h3>
+                 <p style="color:#ddd;">${error}</p>
+            </div>`;
+        }
+
+        // Scoped Tab Switcher
+        window.switchScopedTab = function (uniqueId, platform) {
+            // Hide all in this group
+            const panes = document.querySelectorAll(`[id^="${uniqueId}-"]`);
+            panes.forEach(el => el.style.display = 'none');
+
+            // Show selected
+            document.getElementById(`${uniqueId}-${platform}`).style.display = 'block';
+
+            // Update buttons
+            const buttons = document.querySelector(`#tabs-${uniqueId}`).querySelectorAll('.a3-tab');
+            buttons.forEach(btn => {
+                if (btn.innerText.toLowerCase() === platform) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        };
+
+
+
+        // renderAgent2 and renderAgent3 functions follow
+        function renderAgent2(data) {
+            document.getElementById('agent2-loading').style.display = 'none';
+            const container = document.getElementById('agent2-data');
+            container.style.display = 'block';
+
+            // Store response data for raw JSON viewing
+            agent2ResponseData = data;
+
+            // Handle both formats:
+            const b = data.content_brief || data.content_brief_data || {};
+            const ui = b.ui_presentation || b || data || {};
+
+            // Extract Agent 2 Layer Data
+            const metrics = b.metrics || data.metrics || {};
+            const raw = b.raw_strategy || data.raw_strategy || {};
+            const compositeScore = metrics.composite_score || 'N/A';
+            const breakdown = metrics.score_breakdown || {};
+            const gapAnalysis = metrics.gap_analysis || {};
+
+            const searchIntent = raw.search_intent || 'N/A';
+            const buyerStage = raw.buyer_stage || 'N/A';
+            const persona = raw.persona || {};
+            const diffStrategy = raw.differentiation_strategy || 'N/A';
+
+            // Map internal buyer_stage taxonomy to user-facing Audience Decision Context
+            function renderAudienceDecision(stage) {
+                // stage is expected to be 'Top', 'Middle', 'Bottom' or 'N/A'
+                const mapping = {
+                    'Top': {
+                        badge: 'Exploration Phase',
+                        desc: 'The audience is discovering the topic and seeking high-level understanding and trends.'
+                    },
+                    'Middle': {
+                        badge: 'Evaluation Phase',
+                        desc: 'The audience is evaluating strategic investment decisions and comparing approaches.'
+                    },
+                    'Bottom': {
+                        badge: 'Decision Phase',
+                        desc: 'The audience is making vendor or implementation choices and requires concrete criteria and ROI analysis.'
+                    },
+                    'N/A': {
+                        badge: 'Detected',
+                        desc: 'Audience decision context unavailable or not detected.'
+                    }
+                };
+
+                const info = mapping[stage] || mapping['N/A'];
+
+                return `
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                        <div style="font-size:0.85rem;color:#888;text-transform:uppercase;letter-spacing:1px;">📍 Audience Decision Context (Detected)</div>
+                        <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+                            <span style="background: rgba(3, 218, 198, 0.08); border: 1px solid #03dac6; color: #03dac6; padding: 0.28rem 0.7rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">${info.badge}</span>
+                            <div style="color:#ddd;font-size:0.95rem;line-height:1.4;">${info.desc}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Fixed UI/Schema Coupling: Check multiple potential locations for web_signals
+            // JavaScript treats `{}` as truthy, which short-circuits the `||` checks if the Root has an empty dict.
+            // We need a helper to verify the object actually has data.
+            function getValidSignals(...objs) {
+                for (let obj of objs) {
+                    if (obj && Object.keys(obj).length > 0 && (obj.results || obj.titles)) return obj;
+                }
+                return {};
+            }
+
+            const webSignals = getValidSignals(data.web_signals, b.web_signals, b.raw_strategy ? b.raw_strategy.web_signals : null);
+            const sources = webSignals.results || webSignals.titles ? webSignals : { results: [] };
+
+            // If it returns a standard Tavily struct, results might be titles mapping or pure results array
+            const finalSources = sources.results || (sources.titles ? sources.titles.map((t, i) => ({ title: t, url: sources.urls?.[i] || '#', content: sources.snippets?.[i] || '' })) : []);
+
+            const dominantThemes = gapAnalysis.dominant_themes || [];
+            const saturatedThemes = gapAnalysis.saturated_themes || [];
+            const underexploredAngles = gapAnalysis.underexplored_angles || [];
+
+            function getScoreColor(val) {
+                if (typeof val !== 'number') return '#888';
+                if (val >= 8) return '#4caf50';
+                if (val >= 6) return '#ff9800';
+                return '#f44336';
+            }
+
+            const seoTags = (ui.seo_keywords || data.seo_keywords || []).map(k =>
+                `<span style="background:#1e1e1e; padding:0.3rem 0.8rem; border-radius:100px; font-size:0.85rem; margin-right:0.5rem; display:inline-block; margin-bottom:0.5rem; border:1px solid #333; color:#ccc;">${k}</span>`
+            ).join('');
+            const outline = (ui.h2_outline || data.h2_outline || []).map(h => `<li style="margin-bottom:0.5rem;">${h}</li>`).join('');
+            const takeaways = (ui.key_takeaways || data.key_takeaways || []).map(k => `<li style="margin-bottom:0.5rem;">${k}</li>`).join('');
+
+            container.innerHTML = `
+<!-- SECTION 1: Strategy Diagnostics -->
+<div class="card" style="border-left: 3px solid #03dac6; margin-bottom: 1.5rem; padding: 1.5rem;">
+    <h3 style="color:#03dac6; margin-top:0; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; font-size: 1.2rem;">Strategic Diagnostics</h3>
+    
+    <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+        <div style="text-align: center; background: #1a1a1a; padding: 1.5rem; border-radius: 8px; min-width: 140px; border: 1px solid #333;">
+            <div style="font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px;">Composite Score</div>
+            <div style="font-size: 3rem; font-weight: bold; color: ${getScoreColor(compositeScore)}; line-height: 1.2;">
+                ${typeof compositeScore === 'number' ? compositeScore.toFixed(1) : compositeScore}
+            </div>
+            <div style="font-size: 0.85rem; color: #666;">/ 10.0</div>
+        </div>
+        
+        <div style="flex: 1; min-width: 300px;">
+            ${Object.keys(breakdown).length > 0 ? Object.entries(breakdown).map(([key, val]) => `
+                <div style="margin-bottom: 0.6rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.3rem;">
+                        <span style="color: #ccc; text-transform: capitalize;">${key.replace(/_/g, ' ')}</span>
+                        <span style="color: ${getScoreColor(val)}; font-weight: bold;">${val.toFixed(1)}</span>
+                    </div>
+                    <div style="background: #222; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: ${getScoreColor(val)}; height: 100%; width: ${(val / 10) * 100}%; transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+            `).join('') : '<div style="color: #666; font-style: italic; padding: 1rem; border: 1px dashed #333; border-radius: 4px;">Detailed breakdown not available in this version.</div>'}
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 2: Strategic Positioning -->
+<div class="card" style="border-left: 3px solid #bb86fc; margin-bottom: 1.5rem; padding: 1.5rem;">
+    <h3 style="color:#bb86fc; margin-top:0; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; font-size: 1.2rem;">Strategic Positioning</h3>
+    
+        <div style="display: flex; gap: 0.8rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items:start;">
+        <span style="background: rgba(187, 134, 252, 0.1); border: 1px solid #bb86fc; color: #bb86fc; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">Intent: ${searchIntent}</span>
+        <div style="min-width:320px;">${renderAudienceDecision(buyerStage)}</div>
+    </div>
+    
+    <div style="background: #1a1a1a; padding: 1.2rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #333;">
+        <div style="color: #888; font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">Target Persona Anatomy</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div><span style="color:#666; font-size:0.85rem; display:block; margin-bottom:0.2rem;">Role</span> <span style="color:#eee; font-size:0.95rem; font-weight: 500;">${persona.role || 'N/A'}</span></div>
+            <div><span style="color:#666; font-size:0.85rem; display:block; margin-bottom:0.2rem;">Seniority</span> <span style="color:#eee; font-size:0.95rem; font-weight: 500;">${persona.seniority || 'N/A'}</span></div>
+            <div><span style="color:#666; font-size:0.85rem; display:block; margin-bottom:0.2rem;">Company Type</span> <span style="color:#eee; font-size:0.95rem; font-weight: 500;">${persona.company_type || 'N/A'}</span></div>
+        </div>
+        <div style="border-top: 1px dashed #444; padding-top: 1rem; margin-top: 0.5rem;">
+            <div style="color: #f77f00; font-size: 0.85rem; margin-bottom: 0.4rem; text-transform: uppercase;">Primary Pain Point / Catalyst</div>
+            <div style="color: #fff; font-size: 1rem; font-style: italic; border-left: 2px solid #f77f00; padding-left: 1rem; line-height: 1.5;">"${persona.primary_pain_point || 'N/A'}"</div>
+        </div>
+    </div>
+    
+    <div>
+        <div style="color: #bb86fc; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Differentiation Strategy & Positioning</div>
+        <div style="background: rgba(187, 134, 252, 0.05); border-left: 2px solid #bb86fc; padding: 1rem; border-radius: 0 4px 4px 0; color: #ddd; font-size: 0.95rem; line-height: 1.6;">
+            ${diffStrategy}
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 3: Competitive Intelligence -->
+<div class="card" style="border-left: 3px solid #cf6679; margin-bottom: 2rem; padding: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="const el = document.getElementById('comp-intel-content'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">
+        <h3 style="color:#cf6679; margin:0; font-size: 1.2rem;">Competitive Intelligence (SERP Analysis)</h3>
+        <span style="color: #888; font-size: 0.85rem; background: #222; padding: 0.3rem 0.6rem; border-radius: 4px;">Toggle Expand ▼</span>
+    </div>
+    
+    <div id="comp-intel-content" style="display: block; margin-top: 1.5rem; border-top: 1px solid #333; padding-top: 1.5rem;">
+        <div style="margin-bottom: 1.5rem;">
+            <div style="color: #aaa; font-size: 0.85rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Dominant Themes (Baseline Stakes)</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                ${dominantThemes.length > 0 ? dominantThemes.map(t => `<span style="background: #2a2a2a; border: 1px solid #444; color: #ccc; padding: 0.3rem 0.8rem; border-radius: 100px; font-size: 0.85rem;">${t}</span>`).join('') : '<span style="color:#666; font-size:0.85rem; font-style:italic;">No themes clustered</span>'}
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <div style="color: #cf6679; font-size: 0.85rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Saturated Themes (AVOID)</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                ${saturatedThemes.length > 0 ? saturatedThemes.map(t => `<span style="background: rgba(207, 102, 121, 0.1); border: 1px solid rgba(207,102,121,0.5); color: #cf6679; padding: 0.3rem 0.8rem; border-radius: 100px; font-size: 0.85rem; text-decoration: line-through;">${t}</span>`).join('') : '<span style="color:#666; font-size:0.85rem; font-style:italic;">No saturated zones detected</span>'}
+            </div>
+        </div>
+        
+        <div>
+            <div style="color: #03dac6; font-size: 0.85rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Underexplored Angles (OPPORTUNITY ZONES)</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                ${underexploredAngles.length > 0 ? underexploredAngles.map(t => `<span style="background: rgba(3, 218, 198, 0.1); border: 1px solid #03dac6; color: #03dac6; padding: 0.3rem 0.8rem; border-radius: 100px; font-size: 0.85rem; font-weight: 500;">${t}</span>`).join('') : '<span style="color:#666; font-size:0.85rem; font-style:italic;">No clear white space identified</span>'}
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; border-top: 1px dashed #333; padding-top: 1.5rem;">
+            <div style="color: #4da8da; font-size: 0.85rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Live Web Sources (Tavily Research)</div>
+            <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                ${finalSources.length > 0 ? finalSources.map(s => `
+                    <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 4px; padding: 0.8rem; display: flex; flex-direction: column; gap: 0.3rem;">
+                        <a href="${s.url}" target="_blank" style="color: #4da8da; text-decoration: none; font-size: 0.95rem; font-weight: 500; word-break: break-word;">${s.title || s.url}</a>
+                        <div style="color: #888; font-size: 0.8rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${s.content || 'No snippet available'}</div>
+                    </div>
+                `).join('') : '<span style="color:#666; font-size:0.85rem; font-style:italic;">No live sources indexed</span>'}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 4: Execution Blueprint -->
+<h3 style="color:#f77f00; margin-top:2.5rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #333; font-size: 1.3rem;">Execution Blueprint (Outline)</h3>
+
+<div class="card" style="border-left: 3px solid #f77f00; padding: 1.5rem; margin-bottom: 1rem;">
+    <label class="card-label" style="color:#f77f00; font-size: 0.85rem; letter-spacing: 1px;">Flattened Target Audience</label>
+    <div class="text-content" style="font-size:1.05rem; color:#ccc; margin-top: 0.5rem;">${ui.target_audience || data.target_audience || 'N/A'}</div>
+</div>
+
+<div class="card" style="padding: 1.5rem; margin-bottom: 1rem;">
+    <label class="card-label" style="color:#f77f00; font-size: 0.85rem; letter-spacing: 1px;">Strategic Keyword Targets</label>
+    <div style="display:flex; flex-wrap:wrap; margin-top:0.8rem;">${seoTags || '<span style="color:#666; font-style:italic;">None supplied</span>'}</div>
+</div>
+
+<div class="card" style="padding: 1.5rem; margin-bottom: 1rem;">
+    <label class="card-label" style="color:#f77f00; font-size: 0.85rem; letter-spacing: 1px;">Executive H2 Outline</label>
+    <ol style="padding-left:1.5rem; color:#ddd; line-height:1.7; margin-top:1rem; font-size: 1.05rem;">
+        ${outline || '<li style="color:#888; font-style:italic;">No outline generated</li>'}
+    </ol>
+</div>
+
+<div class="card" style="padding: 1.5rem; margin-bottom: 1rem;">
+    <label class="card-label" style="color:#f77f00; font-size: 0.85rem; letter-spacing: 1px;">Factual Takeaways</label>
+    <ul style="padding-left:1.5rem; color:#ddd; line-height:1.7; margin-top:1rem;">
+        ${takeaways || '<li style="color:#888; font-style:italic;">No takeaways generated</li>'}
+    </ul>
+</div>
+
+<!-- OPTIONAL: Metadata Footer -->
+<div style="margin-top:3rem; border-top:1px solid #222; padding-top:1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div style="color: #666; font-size: 0.8rem; font-family: monospace; display: flex; gap: 1.5rem;">
+        <span><strong>Retries:</strong> ${b.retry_count || metrics.retry_count || 0}</span>
+        <span><strong>Latency:</strong> ${b.latency || metrics.latency ? (b.latency || metrics.latency) + 's' : 'N/A'}</span>
+        <span title="Fingerprint" style="cursor:help;"><strong>Hash:</strong> ${(b.fingerprint || data.fingerprint || 'N/A').substring(0, 8)}...</span>
+    </div>
+    <button onclick="showAgent2RawJSON()"
+        style="background: transparent; border: 1px solid #444; color: #888; padding: 0.4rem 1rem; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 0.85rem; transition: background 0.2s;">
+        { } View Raw JSON object
+    </button>
+</div>
+            `;
+        }
+        function renderAgent3(data) {
+            const container = document.getElementById('agent3-data');
+            container.style.display = 'block';
+
+            // Store response data for raw JSON viewing
+            agent3ResponseData = data;
+
+            // Handle both structures: { output: { blog: ..., linkedin: ... } } from DB
+            // and { blog: ..., linkedin: ... } from direct API response
+            const outputs = data.output || data;
+            const platforms = Object.keys(outputs).filter(k => k !== 'raw_json');
+
+            if (platforms.length === 0) {
+                container.innerHTML = '<div style="color:#888;">No content generated.</div>';
+                return;
+            }
+
+            let tabsHtml = '<div class="a3-tabs">';
+            platforms.forEach((p, idx) => {
+                const active = idx === 0 ? 'active' : '';
+                let icon = '📄';
+                if (p === 'linkedin') icon = '💼';
+                if (p === 'twitter') icon = '🐦';
+                if (p === 'email') icon = '📧';
+                tabsHtml += `<button class="a3-tab ${active}" onclick="switchA3Tab('${p}')">${icon} ${p.charAt(0).toUpperCase() + p.slice(1)}</button>`;
+            });
+            tabsHtml += '</div>';
+
+            let contentHtml = '';
+            platforms.forEach((p, idx) => {
+                const display = idx === 0 ? 'block' : 'none';
+                let contentObj = outputs[p];
+                let displayText = '';
+
+                if (p === 'blog') {
+                    displayText = `<h1>${contentObj.title || 'Untitled'}</h1>\n\n${contentObj.content || ''}`;
+                } else if (p === 'linkedin') {
+                    displayText = contentObj.post || contentObj;
+                } else if (p === 'twitter') {
+                    const thread = contentObj.thread || contentObj;
+                    displayText = Array.isArray(thread) ? thread.join('\n\n---\n\n') : thread;
+                } else if (p === 'email') {
+                    displayText = `Subject: ${contentObj.subject || 'No Subject'}\nPreview: ${contentObj.preview || 'N/A'}\n\n${contentObj.body || ''}\n\n[CTA]: ${contentObj.cta || ''}`;
+                } else {
+                    displayText = typeof contentObj === 'string' ? contentObj : JSON.stringify(contentObj, null, 2);
+                }
+
+                contentHtml += `
+                <div id="a3-p-${p}" class="a3-panel" style="display:${display};">
+                    <div class="a3-content-box">
+                        <div class="scroll-text">${displayText}</div>
+                    </div>
+                    <button class="btn-copy" onclick="copyContent('${p}')">
+                        📋 Copy ${p.charAt(0).toUpperCase() + p.slice(1)} Post
+                    </button>
+                </div>
+                `;
+            });
+
+            contentHtml += `
+                <div style="margin-top:2rem; border-top:1px solid #333; padding-top:1rem; text-align:center;">
+                    <button onclick="showAgent3RawJSON()"
+                        style="background:#bb86fc; color:#000; padding:0.75rem 1.5rem; border-radius:8px; border:none; cursor:pointer; font-size:0.9rem; font-weight:600; transition:all 0.2s;">📄
+                        View Raw JSON</button>
+            </div>
+                `;
+
+            container.innerHTML = tabsHtml + contentHtml;
+        }
+
+        function switchA3Tab(platform) {
+            document.querySelectorAll('.a3-tab').forEach(t => {
+                const isMatch = t.innerText.toLowerCase().includes(platform);
+                isMatch ? t.classList.add('active') : t.classList.remove('active');
+            });
+            document.querySelectorAll('.a3-panel').forEach(p => p.style.display = 'none');
+            document.getElementById(`a3-p-${platform}`).style.display = 'block';
+        }
+
+        async function copyContent(platform) {
+            const text = document.querySelector(`#a3-p-${platform} .scroll-text`).innerText;
+            try {
+                await navigator.clipboard.writeText(text);
+                alert(`${platform} content copied!`);
+            } catch (err) {
+                alert('Copy failed');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '1';
+            }, 10);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        async function acceptProfile() {
+            try {
+                const res = await fetch(`/voice/${BRAND_ID}/feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accepted: true })
+                });
+                if (!res.ok) throw new Error('Failed to accept profile');
+
+                // ✅ SET APPROVAL STATE (this was missing!)
+                sessionState.steps.agent1.approved = true;
+                console.log("[acceptProfile] ✅ Agent 1 marked as APPROVED");
+
+                // Hide feedback, show locked
+                const feedbackCtrl = document.getElementById('controls-feedback');
+                const lockedCtrl = document.getElementById('controls-locked');
+                if (feedbackCtrl) feedbackCtrl.style.display = 'none';
+                if (lockedCtrl) lockedCtrl.style.display = 'block';
+
+                showToast('✓ Profile Locked');
+
+                // ✅ UPDATE WORKFLOW UI (this was missing!)
+                updateWorkflowUI();
+
+                // Notify if Agent 3 is ready
+                if (sessionState.steps.agent2.status === 'generated') {
+                    showToast("✅ Agent 3 Unlocked! Click '3. Execution' tab to generate content.");
+                }
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+
+        async function rejectProfile() {
+            showModal(
+                'Regenerate Profile?',
+                'This will create a new voice profile version. Your current profile data will be replaced, and any downstream content (Agent 2/3) will be reset.',
+                async () => {
+                    const loader = document.getElementById('agent1-loading');
+                    const container = document.getElementById('agent1-data');
+
+                    // 1. HARD RULE: Use BRAND_ID for regeneration scope
+                    const targetBrandId = (sessionState.brand_id || BRAND_ID || "").trim();
+
+                    if (!targetBrandId) {
+                        alert("Critical Error: Brand ID is missing. Cannot regenerate.");
+                        loader.style.display = 'none';
+                        container.style.display = 'block';
+                        return;
+                    }
+
+                    container.style.display = 'none';
+                    loader.style.display = 'flex';
+                    loader.querySelector('span').innerText = 'Regenerating profile (new version)...';
+
+                    const sessionIdParam = sessionState.session_id ? `?session_id=${sessionState.session_id}` : '';
+
+                    try {
+                        console.log(`[REGEN] Initiating for BRAND_ID=${targetBrandId}`);
+                        const res = await fetch(`/pipeline/regenerate/${targetBrandId}${sessionIdParam}`, { method: 'POST' });
+
+                        if (!res.ok) {
+                            const errText = await res.text();
+                            throw new Error(`Regeneration failed (${res.status}): ${errText}`);
+                        }
+
+                        // 3. Fetch COMPLETE new profile from DB
+                        const profileRes = await fetch(`/ingest/profiles/brand/${targetBrandId}`);
+                        if (!profileRes.ok) throw new Error("Failed to fetch regenerated profile from DB");
+
+                        const fullProfile = await profileRes.json();
+                        renderAgent1(fullProfile);
+
+                        sessionState.agent1_data = fullProfile;
+                        sessionState.steps.agent1.status = 'generated';
+                        sessionState.steps.agent1.approved = false;
+
+                        console.log("[REGEN] Resetting downstream agents...");
+                        sessionState.agent2_data = null;
+                        sessionState.agent3_data = null;
+                        sessionState.steps.agent2.status = 'idle';
+                        sessionState.steps.agent3.status = 'idle';
+
+                        updateWorkflowUI();
+                        loader.style.display = 'none';
+                        showToast('Profile regenerated. Please review and approve.');
+
+                    } catch (e) {
+                        console.error("[REGEN] Failed:", e);
+                        loader.style.display = 'none';
+                        container.style.display = 'block';
+                        alert(`Regeneration failed: ${e.message}`);
+                    }
+                }
+            );
+        }
+
+        // NEW: Reset Agent 3 to allow re-configuration
+        function resetAgent3() {
+            // Hide results and save section
+            document.getElementById('agent3-data').style.display = 'none';
+            document.getElementById('save-all-section').style.display = 'none';
+
+            // Show config
+            const config = document.getElementById('agent3-start');
+            config.style.display = 'block';
+
+            // Allow selecting mode again
+            config.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function discardSession() {
+            showModal(
+                'Discard Session?',
+                'This will clear all generated data (Profiles, Stratgy, Content) and start over. This action cannot be undone.',
+                async () => {
+                    try {
+                        const brandId = BRAND_ID || getQueryParam('brand_id');
+                        if (brandId) {
+                            showToast("Cleaning up resources...", "info", 5000);
+                            const res = await fetch(`/brands/${brandId}/resources`, {
+                                method: 'DELETE'
+                            });
+                            if (!res.ok) {
+                                console.error("Cleanup failed", await res.text());
+                                // Proceed anyway? or Alert?
+                                // Prompt said "Implement it carefully".
+                                // If it fails, we should probably warn but still go to home.
+                            }
+                        }
+                        window.location.href = '/';
+                    } catch (e) {
+                        console.error("Cleanup Error", e);
+                        window.location.href = '/';
+                    }
+                }
+            );
+        }
+
+        function showModal(title, message, onConfirm) {
+            const modal = document.getElementById('modal');
+            modal.innerHTML = ''; // Clear previous
+
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.onclick = closeModal;
+
+            const box = document.createElement('div');
+            box.className = 'modal-box';
+            box.onclick = (e) => e.stopPropagation();
+
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'modal-title';
+            titleDiv.textContent = title;
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'modal-message';
+            msgDiv.textContent = message;
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'modal-actions';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.style.cssText = 'background:#444; color:#fff;';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = closeModal;
+
+            const continueBtn = document.createElement('button');
+            continueBtn.style.cssText = 'background:#cf6679; color:#fff;';
+            continueBtn.textContent = 'Continue';
+            continueBtn.onclick = confirmModal;
+
+            actionsDiv.appendChild(cancelBtn);
+            actionsDiv.appendChild(continueBtn);
+
+            box.appendChild(titleDiv);
+            box.appendChild(msgDiv);
+            box.appendChild(actionsDiv);
+            overlay.appendChild(box);
+            modal.appendChild(overlay);
+
+            modal.style.display = 'block';
+            modal._onConfirm = onConfirm;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function confirmModal() {
+            const modal = document.getElementById('modal');
+            if (modal._onConfirm) modal._onConfirm();
+            closeModal();
+        }
+
+        function toggleEdit(isEdit) {
+            const viewMode = document.getElementById('view-mode');
+            const editMode = document.getElementById('edit-mode');
+            const controlsFeedback = document.getElementById('controls-feedback');
+            const controlsLocked = document.getElementById('controls-locked');
+            const controlsEdit = document.getElementById('controls-edit');
+
+            if (viewMode) viewMode.style.display = isEdit ? 'none' : 'block';
+            if (editMode) editMode.style.display = isEdit ? 'block' : 'none';
+            if (controlsFeedback) controlsFeedback.style.display = isEdit ? 'none' : 'block';
+            if (controlsLocked) controlsLocked.style.display = 'none';
+            if (controlsEdit) controlsEdit.style.display = isEdit ? 'flex' : 'none';
+        }
+
+        async function saveAgent1Edit() {
+            try {
+                const newTonePrimary = document.getElementById('e-tone-p').value;
+                const newToneDesc = document.getElementById('e-tone-d').value;
+                const newDos = document.getElementById('e-dos').value.split('\n').filter(x => x.trim());
+                const newDonts = document.getElementById('e-donts').value.split('\n').filter(x => x.trim());
+                const updatedSystemPrompt = document.getElementById('e-system-prompt')?.value
+                    || sessionState.agent1_data?.system_prompt || '';
+
+                // 1. Send Update to Backend (Phase 1 Edit)
+                // Normalize data path: handle both profile_data wrapper (from sessionStorage)
+                // and flat structure (from DB re-fetch) — same pattern as renderAgent1
+                const existingProfile = agent1ResponseData?.profile_data || agent1ResponseData || {};
+                const existingRules = existingProfile.rules || existingProfile;
+                const existingTone = existingProfile.tone || existingRules.tone || {};
+
+                const updatePayload = {
+                    brand_id: BRAND_ID,
+                    system_prompt: updatedSystemPrompt,
+                    explicit_rules: {
+                        tone: {
+                            primary: newTonePrimary,
+                            description: newToneDesc,
+                            // Preserve secondary tones from original data
+                            secondary: existingTone.secondary || []
+                        },
+                        dos: newDos,
+                        donts: newDonts,
+                        // Preserve fields not exposed in the edit UI
+                        forbidden_phrases: existingRules.forbidden_phrases || [],
+                        preferred_vocabulary: existingRules.preferred_vocabulary || []
+                    }
+                };
+
+                const profileId = sessionState.agent1_data.id || sessionState.agent1_data.profile_id;
+
+                const res = await fetch(`/ingest/profile/${profileId}/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatePayload)
+                });
+
+                if (!res.ok) throw new Error(await res.text());
+
+                showToast('✓ Phase 1 (Human) Changes Saved');
+
+                // 2. Try to re-fetch from DB; if it fails, apply edits locally
+                let newProfile;
+                try {
+                    const profileRes = await fetch(`/ingest/profiles/brand/${sessionState.brand_id || BRAND_ID}`);
+                    if (profileRes.ok) {
+                        newProfile = await profileRes.json();
+                        console.log('[saveAgent1Edit] ✅ Re-fetched profile from DB');
+                    } else {
+                        throw new Error('DB re-fetch returned ' + profileRes.status);
+                    }
+                } catch (fetchErr) {
+                    // Graceful fallback: apply edits locally to existing session data
+                    console.warn('[saveAgent1Edit] DB re-fetch failed, applying edits locally:', fetchErr.message);
+                    newProfile = { ...sessionState.agent1_data };
+                    // Apply edited values into local copy
+                    if (!newProfile.rules) newProfile.rules = {};
+                    newProfile.rules.tone = { primary: newTonePrimary, description: newToneDesc };
+                    newProfile.rules.dos = newDos;
+                    newProfile.rules.donts = newDonts;
+                    newProfile.tone = { primary: newTonePrimary, description: newToneDesc };
+                    if (newProfile.system_prompt !== undefined) {
+                        newProfile.system_prompt = updatedSystemPrompt;
+                    }
+                }
+
+                // 3. Update State & Storage
+                sessionState.agent1_data = newProfile;
+                if (sessionStorage.getItem('agent1_data')) {
+                    sessionStorage.setItem('agent1_data', JSON.stringify(newProfile));
+                }
+
+                // 4. Re-render
+                renderAgent1(newProfile);
+                toggleEdit(false);
+
+                // Reset Agent 3 to config form (invalidated by change)
+                const agent3Data = document.getElementById('agent3-data');
+                const agent3Config = document.getElementById('agent3-start');
+                if (agent3Data) {
+                    agent3Data.style.display = 'none';
+                    agent3Data.innerHTML = '';
+                }
+                if (agent3Config) agent3Config.style.display = 'block';
+
+                // Update button text to Regenerate (if exists)
+                const genBtn = document.getElementById('agent3-gen-btn');
+                if (genBtn) {
+                    genBtn.innerHTML = '🔄 Regenerate Content';
+                }
+
+            } catch (e) {
+                alert("Edit Failed: " + e.message);
+            }
+        }
+
+
+        // V2 Data Visibility Toggle
+        function toggleV2Data() {
+            const container = document.getElementById('v2-contract-data');
+            const isVisible = container.style.display === 'block';
+            container.style.display = isVisible ? 'none' : 'block';
+        }
+
+        // Agent 1 Raw JSON Functions
+        function showAgent1RawJSON() {
+            if (!agent1ResponseData) {
+                alert('No raw JSON data available');
+                return;
+            }
+            const jsonDisplay = document.getElementById('raw-agent1-display');
+            jsonDisplay.textContent = JSON.stringify(agent1ResponseData, null, 2);
+            document.getElementById('raw-agent1-modal').style.display = 'flex';
+        }
+
+        function closeAgent1RawJSON() {
+            document.getElementById('raw-agent1-modal').style.display = 'none';
+        }
+
+        function copyAgent1JSON() {
+            const text = document.getElementById('raw-agent1-display').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Agent 1 JSON copied to clipboard!');
+            }).catch(err => {
+                alert('❌ Failed to copy: ' + err);
+            });
+        }
+
+        function downloadAgent1JSON() {
+            const data = agent1ResponseData;
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `agent1_response_${data.profile_id || Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Agent 2 Raw JSON Functions
+        function showAgent2RawJSON() {
+            if (!agent2ResponseData) {
+                alert('No raw JSON data available');
+                return;
+            }
+            const jsonDisplay = document.getElementById('raw-agent2-display');
+            jsonDisplay.textContent = JSON.stringify(agent2ResponseData.raw_json || agent2ResponseData, null, 2);
+            document.getElementById('raw-agent2-modal').style.display = 'flex';
+        }
+
+        function closeAgent2RawJSON() {
+            document.getElementById('raw-agent2-modal').style.display = 'none';
+        }
+
+        function copyAgent2JSON() {
+            const text = document.getElementById('raw-agent2-display').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Agent 2 JSON copied to clipboard!');
+            }).catch(err => {
+                alert('❌ Failed to copy: ' + err);
+            });
+        }
+
+        function downloadAgent2JSON() {
+            const data = agent2ResponseData.raw_json || agent2ResponseData;
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `agent2_response_${data.brief_id || Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Agent 3 Raw JSON Functions
+        function showAgent3RawJSON() {
+            if (!agent3ResponseData) {
+                alert('No raw JSON data available');
+                return;
+            }
+            const jsonDisplay = document.getElementById('raw-agent3-display');
+            jsonDisplay.textContent = JSON.stringify(agent3ResponseData.raw_json || agent3ResponseData, null, 2);
+            document.getElementById('raw-agent3-modal').style.display = 'flex';
+        }
+
+        function closeAgent3RawJSON() {
+            document.getElementById('raw-agent3-modal').style.display = 'none';
+        }
+
+        function copyAgent3JSON() {
+            const text = document.getElementById('raw-agent3-display').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Agent 3 JSON copied to clipboard!');
+            }).catch(err => {
+                alert('❌ Failed to copy: ' + err);
+            });
+        }
+
+        function downloadAgent3JSON() {
+            const data = agent3ResponseData.raw_json || agent3ResponseData;
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `agent3_response_${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAgent1RawJSON();
+                closeAgent2RawJSON();
+                closeAgent3RawJSON();
+            }
+        });
+
+        // Close modals on background click
+        document.getElementById('raw-agent1-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'raw-agent1-modal') {
+                closeAgent1RawJSON();
+            }
+        });
+
+        document.getElementById('raw-agent2-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'raw-agent2-modal') {
+                closeAgent2RawJSON();
+            }
+        });
+
+        document.getElementById('raw-agent3-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'raw-agent3-modal') {
+                closeAgent3RawJSON();
+            }
+        });
+    </script>
+</body>
+
+</html>

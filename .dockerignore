@@ -1,0 +1,89 @@
+# Version Control
+.git
+.gitignore
+
+# Python Cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+
+# Environment Files
+.env
+.env.local
+
+# Virtual Environments
+venv
+env
+.venv
+
+# IDE Settings
+.vscode
+.idea
+.config
+.conda
+
+# Logs
+logs/
+*.log
+AGENT2_DEBUG.log
+db_init_v2.log
+
+# Runtime Data (ephemeral in Cloud Run)
+local_db/
+chroma_data/
+chroma_data_volume/
+
+# ============================================
+# CLOUD RUN OPTIMIZATIONS
+# ============================================
+
+# Testing
+tests/
+conftest.py
+
+# Documentation
+docs/
+graphs/
+
+# Scripts (CLI tools, migrations)
+scripts/
+alembic/
+alembic.ini
+
+# Worker (disabled for Cloud Run)
+core/worker/
+
+# Development Tools
+debug_*.py
+fix_*.py
+verify_*.py
+quick_*.py
+compare_*.py
+generate_tree.py
+
+# Duplicate Root Files ONLY (lib/loaders/scrapers/ versions are used)
+init_database.py
+website_scraper.py
+javascript_scraper.py
+
+# Windows Batch Files
+*.bat
+
+# Build Artifacts
+cloudbuild.yaml
+.dockerignore
+
+# Documentation Artifacts
+platform_readiness_audit.md
+release_gating_review.md
+v2_bypass_diagnostic.md
+v2_persistence_report.md
+handoff_message.txt
+codebase_tree.txt
+INTEGRATION_NOTES.md
+LOGGING_ADDITIONS_SUMMARY.md
+NULL_SAFETY_GUIDE.md
+PLATFORM_API_CONTRACT_v1.0.md
+README_platform_section.md

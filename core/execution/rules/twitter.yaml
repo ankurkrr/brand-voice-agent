@@ -1,0 +1,12 @@
+max_chars_per_tweet: 280
+max_thread_length: 10
+ideal_thread_length: 5
+structure: "Hook tweet -> Context -> Value -> CTA"
+formatting: "Numbers for thread, emojis for emphasis, line breaks"
+engagement_tactics:
+  - "Strong hook"
+  - "Thread numbering (1/5)"
+  - "Question or CTA at end"
+tone: "Concise, punchy, high-signal"
+banned_words: []
+required_elements: []
